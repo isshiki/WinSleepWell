@@ -1,11 +1,18 @@
 ﻿<Window x:Class="WinSleepWell.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="WinSleepWell" Height="400" Width="625">
+        Title="WinSleepWell" Height="500" Width="625">
     <Grid>
-        <Button Content="Get Mouse and Touchpad Info" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="180" Click="Button_Click"/>
-        <ComboBox Name="MouseInfoComboBox" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Width="580" SelectionChanged="MouseInfoComboBox_SelectionChanged"/>
-        <Button Name="EnableButton" Content="Enable" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top" Width="80" Click="EnableButton_Click" IsEnabled="False"/>
-        <Button Name="DisableButton" Content="Disable" HorizontalAlignment="Left" Margin="100,100,0,0" VerticalAlignment="Top" Width="80" Click="DisableButton_Click" IsEnabled="False"/>
+        <Button Content="Get Devices Info" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="180" Click="Button_Click"/>
+
+        <Label Content="Mouse and Touchpad" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Width="180"/>
+        <ComboBox Name="MouseInfoComboBox" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="580" SelectionChanged="MouseInfoComboBox_SelectionChanged"/>
+        <Button Name="EnableMouseButton" Content="Enable" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Width="80" Click="EnableMouseButton_Click" IsEnabled="False"/>
+        <Button Name="DisableMouseButton" Content="Disable" HorizontalAlignment="Left" Margin="100,110,0,0" VerticalAlignment="Top" Width="80" Click="DisableMouseButton_Click" IsEnabled="False"/>
+
+        <Label Content="Fingerprint Reader" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top" Width="180"/>
+        <ComboBox Name="BiometricInfoComboBox" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top" Width="580" SelectionChanged="BiometricInfoComboBox_SelectionChanged"/>
+        <Button Name="EnableBiometricButton" Content="Enable" HorizontalAlignment="Left" Margin="10,220,0,0" VerticalAlignment="Top" Width="80" Click="EnableBiometricButton_Click" IsEnabled="False"/>
+        <Button Name="DisableBiometricButton" Content="Disable" HorizontalAlignment="Left" Margin="100,220,0,0" VerticalAlignment="Top" Width="80" Click="DisableBiometricButton_Click" IsEnabled="False"/>
     </Grid>
 </Window>
