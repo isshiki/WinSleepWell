@@ -1,23 +1,94 @@
 ﻿using System;
 using System.Windows;
-using System.Management;
-using System.Diagnostics;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+using MessageBox = System.Windows.MessageBox;
+using Application = System.Windows.Application;
+using Microsoft.Win32;
+using Formatting = Newtonsoft.Json.Formatting;
 
 namespace WinSleepWell
 {
     public partial class MainWindow : Window
     {
+        private NotifyIcon _notifyIcon;
+        private DeviceManager _deviceManager;
+        private List<DeviceManager.DeviceInfo> _devices;
+        private string _settingsFilePath = "settings.json";
+        private bool _isInitialized = false;
+
         public MainWindow()
         {
             InitializeComponent();
+            _deviceManager = new DeviceManager();
+            _devices = _deviceManager.GetDevices();
+            InitializeNotifyIcon();
+            LoadDevicesInfo();
+            LoadSettings();
+            SystemEvents.PowerModeChanged += OnPowerChange;
+            _isInitialized = true;
+            Hide();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void InitializeNotifyIcon()
         {
-            GetDevicesInfo();
+            _notifyIcon = new NotifyIcon
+            {
+                Icon = new Icon("app.ico"), // アイコンファイルをプロジェクトに追加しておく
+                Visible = true,
+                Text = "WinSleepWell"
+            };
+
+            _notifyIcon.DoubleClick += (s, e) => ShowMainWindow();
+
+            var contextMenu = new ContextMenuStrip();
+            contextMenu.Items.Add("Show", null, (s, e) => ShowMainWindow());
+            contextMenu.Items.Add("Exit", null, ExitApplication);
+
+            _notifyIcon.ContextMenuStrip = contextMenu;
         }
 
-        private void GetDevicesInfo()
+        private void ShowMainWindow()
+        {
+            Show();
+            WindowState = WindowState.Normal;
+            Activate();
+        }
+
+        private void ExitApplication(object sender, EventArgs e)
+        {
+            _notifyIcon.Visible = false;
+            _notifyIcon.Dispose();
+            Application.Current.Shutdown();
+        }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
+        {
+            SaveSettings();
+            Hide();
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                Hide();
+                _notifyIcon.ShowBalloonTip(1000, "WinSleepWell", "Application minimized to tray.", ToolTipIcon.Info);
+            }
+            base.OnStateChanged(e);
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            SaveSettings();
+            Hide();
+        }
+
+        private void LoadDevicesInfo()
         {
             MouseInfoComboBox.Items.Clear();
             BiometricInfoComboBox.Items.Clear();
@@ -25,66 +96,56 @@ namespace WinSleepWell
             MouseInfoComboBox.Items.Add("None");
             BiometricInfoComboBox.Items.Add("None");
 
-            try
+            foreach (var device in _devices)
             {
-                var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity");
+                var statusText = device.Status == "OK" ? "[Enabled]" : "[Disabled]";
+                var displayText = $"{device.DeviceId} ({device.DeviceName}) {statusText}";
 
-                foreach (ManagementObject obj in searcher.Get())
+                if (device.PnpClass == "Mouse")
                 {
-                    var deviceId = obj["DeviceID"]?.ToString() ?? "Unknown Device ID";
-                    var deviceName = obj["Name"]?.ToString() ?? "Unknown Device Name";
-                    //var description = obj["Description"]?.ToString() ?? "Unknown Description";
-                    var status = obj["Status"]?.ToString() ?? "Unknown Status";
-                    var pnpClass = obj["PNPClass"]?.ToString() ?? "Unknown PNPClass";
-
-                    // Convert status to [Enabled] or [Disabled]
-                    var statusText = status == "OK" ? "[Enabled]" : "[Disabled]";
-                    var displayText = $"{deviceId} ({deviceName}) {statusText}";
-
-                    // PNPClass for Mouse and Touchpad
-                    if (pnpClass == "Mouse")
-                    {
-                        MouseInfoComboBox.Items.Add(displayText);
-                    }
-                    // PNPClass for Biometric devices
-                    else if ((pnpClass == "Biometric") && (deviceName.Contains("Fingerprint")))
-                    {
-                        BiometricInfoComboBox.Items.Add(displayText);
-                    }
+                    MouseInfoComboBox.Items.Add(displayText);
                 }
-
-                if (MouseInfoComboBox.Items.Count > 1)
+                else if (device.PnpClass == "Biometric" && device.DeviceName.Contains("Fingerprint"))
                 {
-                    MouseInfoComboBox.SelectedIndex = 1;
-                }
-                else
-                {
-                    MouseInfoComboBox.SelectedIndex = 0;
-                }
-
-                if (BiometricInfoComboBox.Items.Count > 1)
-                {
-                    BiometricInfoComboBox.SelectedIndex = 1;
-                }
-                else
-                {
-                    BiometricInfoComboBox.SelectedIndex = 0;
+                    BiometricInfoComboBox.Items.Add(displayText);
                 }
             }
-            catch (ManagementException ex)
+
+            if (MouseInfoComboBox.Items.Count > 1)
             {
-                MessageBox.Show("An error occurred while querying for WMI data: " + ex.Message);
+                MouseInfoComboBox.SelectedIndex = 1;
+            }
+            else
+            {
+                MouseInfoComboBox.SelectedIndex = 0;
+            }
+
+            if (BiometricInfoComboBox.Items.Count > 1)
+            {
+                BiometricInfoComboBox.SelectedIndex = 1;
+            }
+            else
+            {
+                BiometricInfoComboBox.SelectedIndex = 0;
             }
         }
 
         private void MouseInfoComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             UpdateMouseButtonStates();
+            if (_isInitialized)
+            {
+                SaveSettings();
+            }
         }
 
         private void BiometricInfoComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             UpdateBiometricButtonStates();
+            if (_isInitialized)
+            {
+                SaveSettings();
+            }
         }
 
         private void UpdateMouseButtonStates()
@@ -166,32 +227,110 @@ namespace WinSleepWell
                 return;
             }
 
-            // Code to enable or disable the device using WMI
-            try
+            var result = _deviceManager.ChangeDeviceStatus(deviceId, enable);
+            MessageBox.Show(result);
+
+            LoadDevicesInfo(); // Refresh the list
+        }
+
+        private void ReloadDevicesInfo_Click(object sender, RoutedEventArgs e)
+        {
+            _devices = _deviceManager.GetDevices();
+            LoadDevicesInfo();
+        }
+
+        private void AutoToggleCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_isInitialized)
             {
-                using (var searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_PnPEntity WHERE DeviceID='{deviceId.Replace("\\", "\\\\")}'"))
+                SaveSettings();
+            }
+        }
+
+        private void AutoToggleCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (_isInitialized)
+            {
+                SaveSettings();
+            }
+        }
+
+        private void SaveSettings()
+        {
+            var settings = new Settings
+            {
+                MouseDeviceId = MouseInfoComboBox.SelectedItem?.ToString() ?? "None",
+                BiometricDeviceId = BiometricInfoComboBox.SelectedItem?.ToString() ?? "None",
+                MouseAutoToggle = MouseAutoToggleCheckBox.IsChecked ?? true,
+                BiometricAutoToggle = BiometricAutoToggleCheckBox.IsChecked ?? true
+            };
+
+            var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+            File.WriteAllText(_settingsFilePath, json);
+        }
+
+        private void LoadSettings()
+        {
+            if (File.Exists(_settingsFilePath))
+            {
+                var json = File.ReadAllText(_settingsFilePath);
+                var settings = JsonConvert.DeserializeObject<Settings>(json);
+
+                SelectComboBoxItem(MouseInfoComboBox, settings?.MouseDeviceId ?? String.Empty);
+                SelectComboBoxItem(BiometricInfoComboBox, settings?.BiometricDeviceId ?? String.Empty);
+                MouseAutoToggleCheckBox.IsChecked = settings?.MouseAutoToggle ?? true;
+                BiometricAutoToggleCheckBox.IsChecked = settings?.BiometricAutoToggle ?? true;
+            }
+        }
+
+        private void SelectComboBoxItem(System.Windows.Controls.ComboBox comboBox, string item)
+        {
+            foreach (var comboBoxItem in comboBox.Items)
+            {
+                if (comboBoxItem.ToString() == item)
                 {
-                    foreach (ManagementObject mobj in searcher.Get())
-                    {
-                        // Enable or Disable method
-                        object[] methodArgs = { String.Empty };
-                        Debug.WriteLine($"Invoking method: {(enable ? "Enable" : "Disable")} on device: {deviceId}");
-                        mobj.InvokeMethod(enable ? "Enable" : "Disable", methodArgs);
-                        var deviceName = mobj["Name"].ToString() ?? "Unknown device";
-                        MessageBox.Show($"{deviceName} is " + (enable ? "Enabled." : "Disabled."));
-                    }
+                    comboBox.SelectedItem = comboBoxItem;
+                    return;
+                }
+            }
+
+            comboBox.SelectedIndex = 0; // Select "None" if the item is not found
+        }
+
+        private void OnPowerChange(object sender, PowerModeChangedEventArgs e)
+        {
+            if (e.Mode == PowerModes.Suspend)
+            {
+                if (MouseAutoToggleCheckBox.IsChecked == true)
+                {
+                    ChangeDeviceStatus(false, true);
                 }
 
-                GetDevicesInfo(); // Refresh the list
+                if (BiometricAutoToggleCheckBox.IsChecked == true)
+                {
+                    ChangeDeviceStatus(false, false);
+                }
             }
-            catch (ManagementException ex)
+            else if (e.Mode == PowerModes.Resume)
             {
-                MessageBox.Show("An error occurred while changing the device status: " + ex.Message);
+                if (MouseAutoToggleCheckBox.IsChecked == true)
+                {
+                    ChangeDeviceStatus(true, true);
+                }
+
+                if (BiometricAutoToggleCheckBox.IsChecked == true)
+                {
+                    ChangeDeviceStatus(true, false);
+                }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Something wrong: " + ex.Message);
-            }
+        }
+
+        public class Settings
+        {
+            public string MouseDeviceId { get; set; }
+            public string BiometricDeviceId { get; set; }
+            public bool MouseAutoToggle { get; set; }
+            public bool BiometricAutoToggle { get; set; }
         }
     }
 }
