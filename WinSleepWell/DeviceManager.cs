@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Management;
 
 namespace WinSleepWell
@@ -37,16 +35,14 @@ namespace WinSleepWell
                         PnpClass = pnpClass
                     });
                 }
-
-                LogEvent("Device information retrieved successfully.", EventLogEntryType.Information);
             }
             catch (ManagementException ex)
             {
-                LogEvent("An error occurred while querying for WMI data: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent("An error occurred while querying for WMI data: " + ex.Message, EventLogEntryType.Error);
             }
             catch (Exception ex)
             {
-                LogEvent("Something went wrong: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent("Something went wrong: " + ex.Message, EventLogEntryType.Error);
             }
 
             return devices;
@@ -60,11 +56,11 @@ namespace WinSleepWell
                 {
                     foreach (ManagementObject mobj in searcher.Get())
                     {
-                        object[] methodArgs = { String.Empty };
+                        object[] methodArgs = { string.Empty };
                         mobj.InvokeMethod(enable ? "Enable" : "Disable", methodArgs);
                         var deviceName = mobj["Name"].ToString() ?? "Unknown device";
                         var resultMessage = $"{deviceName} is " + (enable ? "Enabled." : "Disabled.");
-                        LogEvent(resultMessage, EventLogEntryType.Information);
+                        EventLogger.LogEvent(resultMessage, EventLogEntryType.Information);
                         return resultMessage;
                     }
                 }
@@ -72,33 +68,17 @@ namespace WinSleepWell
             catch (ManagementException ex)
             {
                 var errorMessage = "An error occurred while changing the device status: " + ex.Message;
-                LogEvent(errorMessage, EventLogEntryType.Error);
+                EventLogger.LogEvent(errorMessage, EventLogEntryType.Error);
                 return errorMessage;
             }
             catch (Exception ex)
             {
                 var errorMessage = "Something went wrong: " + ex.Message;
-                LogEvent(errorMessage, EventLogEntryType.Error);
+                EventLogger.LogEvent(errorMessage, EventLogEntryType.Error);
                 return errorMessage;
             }
 
-            var notFoundMessage = "Device not found.";
-            LogEvent(notFoundMessage, EventLogEntryType.Warning);
-            return notFoundMessage;
-        }
-
-        private void LogEvent(string message, EventLogEntryType type)
-        {
-            if (!EventLog.SourceExists("WinSleepWell"))
-            {
-                EventLog.CreateEventSource("WinSleepWell", "Application");
-            }
-
-            using (EventLog eventLog = new EventLog("Application"))
-            {
-                eventLog.Source = "WinSleepWell";
-                eventLog.WriteEntry(message, type);
-            }
+            return "Device not found.";
         }
     }
 }

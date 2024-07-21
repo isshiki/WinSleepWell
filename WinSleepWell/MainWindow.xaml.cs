@@ -1,14 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
 using System.Windows;
-using System.Windows.Forms;
-using System.Drawing;
-using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json;
-using MessageBox = System.Windows.MessageBox;
 using Application = System.Windows.Application;
-using Microsoft.Win32;
-using Formatting = Newtonsoft.Json.Formatting;
+using MessageBox = System.Windows.MessageBox;
 
 namespace WinSleepWell
 {
@@ -17,13 +10,15 @@ namespace WinSleepWell
         private NotifyIcon _notifyIcon;
         private DeviceManager _deviceManager;
         private List<DeviceManager.DeviceInfo> _devices;
-        private string _settingsFilePath = "settings.json";
+        private SettingsManager _settingsManager;
         private bool _isInitialized = false;
+        private bool _isLoadingSettings = false;
 
         public MainWindow()
         {
             InitializeComponent();
             _deviceManager = new DeviceManager();
+            _settingsManager = new SettingsManager();
             _devices = _deviceManager.GetDevices();
             InitializeNotifyIcon();
             LoadDevicesInfo();
@@ -110,30 +105,12 @@ namespace WinSleepWell
                     BiometricInfoComboBox.Items.Add(displayText);
                 }
             }
-
-            if (MouseInfoComboBox.Items.Count > 1)
-            {
-                MouseInfoComboBox.SelectedIndex = 1;
-            }
-            else
-            {
-                MouseInfoComboBox.SelectedIndex = 0;
-            }
-
-            if (BiometricInfoComboBox.Items.Count > 1)
-            {
-                BiometricInfoComboBox.SelectedIndex = 1;
-            }
-            else
-            {
-                BiometricInfoComboBox.SelectedIndex = 0;
-            }
         }
 
         private void MouseInfoComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             UpdateMouseButtonStates();
-            if (_isInitialized)
+            if (_isInitialized && !_isLoadingSettings)
             {
                 SaveSettings();
             }
@@ -142,7 +119,7 @@ namespace WinSleepWell
         private void BiometricInfoComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             UpdateBiometricButtonStates();
-            if (_isInitialized)
+            if (_isInitialized && !_isLoadingSettings)
             {
                 SaveSettings();
             }
@@ -234,18 +211,21 @@ namespace WinSleepWell
             var result = _deviceManager.ChangeDeviceStatus(deviceId, enable);
             MessageBox.Show(result);
 
-            LoadDevicesInfo(); // Refresh the list
+            // LoadDevicesInfo(); // Refresh the list
         }
 
         private void ReloadDevicesInfo_Click(object sender, RoutedEventArgs e)
         {
+            _isLoadingSettings = true;
             _devices = _deviceManager.GetDevices();
             LoadDevicesInfo();
+            LoadSettings(); // Load settings after refreshing the device list
+            _isLoadingSettings = false;
         }
 
         private void AutoToggleCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            if (_isInitialized)
+            if (_isInitialized && !_isLoadingSettings)
             {
                 SaveSettings();
             }
@@ -253,7 +233,7 @@ namespace WinSleepWell
 
         private void AutoToggleCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (_isInitialized)
+            if (_isInitialized && !_isLoadingSettings)
             {
                 SaveSettings();
             }
@@ -269,36 +249,40 @@ namespace WinSleepWell
                 BiometricAutoToggle = BiometricAutoToggleCheckBox.IsChecked ?? true
             };
 
-            var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-            File.WriteAllText(_settingsFilePath, json);
+            _settingsManager.SaveSettings(settings);
         }
 
         private void LoadSettings()
         {
-            if (File.Exists(_settingsFilePath))
-            {
-                var json = File.ReadAllText(_settingsFilePath);
-                var settings = JsonConvert.DeserializeObject<Settings>(json);
+            _isLoadingSettings = true;
+            var settings = _settingsManager.LoadSettings();
 
-                SelectComboBoxItem(MouseInfoComboBox, settings?.MouseDeviceId ?? String.Empty);
-                SelectComboBoxItem(BiometricInfoComboBox, settings?.BiometricDeviceId ?? String.Empty);
-                MouseAutoToggleCheckBox.IsChecked = settings?.MouseAutoToggle ?? true;
-                BiometricAutoToggleCheckBox.IsChecked = settings?.BiometricAutoToggle ?? true;
-            }
+            SelectComboBoxItem(MouseInfoComboBox, settings?.MouseDeviceId ?? String.Empty);
+            SelectComboBoxItem(BiometricInfoComboBox, settings?.BiometricDeviceId ?? String.Empty);
+            MouseAutoToggleCheckBox.IsChecked = settings?.MouseAutoToggle ?? true;
+            BiometricAutoToggleCheckBox.IsChecked = settings?.BiometricAutoToggle ?? true;
+            _isLoadingSettings = false;
         }
 
         private void SelectComboBoxItem(System.Windows.Controls.ComboBox comboBox, string item)
         {
-            foreach (var comboBoxItem in comboBox.Items)
+            if (comboBox.Items.Count > 1)
             {
-                if (comboBoxItem.ToString() == item)
+                foreach (var comboBoxItem in comboBox.Items)
                 {
-                    comboBox.SelectedItem = comboBoxItem;
-                    return;
+                    if (comboBoxItem.ToString() == item)
+                    {
+                        comboBox.SelectedItem = comboBoxItem;
+                        return;
+                    }
                 }
-            }
 
-            comboBox.SelectedIndex = 0; // Select "None" if the item is not found
+                comboBox.SelectedIndex = 1; // Select the first item if the item is not found
+            }
+            else
+            {
+                comboBox.SelectedIndex = 0; // Select "None" if the item is not found
+            }
         }
 
         private void OnPowerChange(object sender, PowerModeChangedEventArgs e)
@@ -327,14 +311,6 @@ namespace WinSleepWell
                     ChangeDeviceStatus(true, false);
                 }
             }
-        }
-
-        public class Settings
-        {
-            public string MouseDeviceId { get; set; }
-            public string BiometricDeviceId { get; set; }
-            public bool MouseAutoToggle { get; set; }
-            public bool BiometricAutoToggle { get; set; }
         }
     }
 }
