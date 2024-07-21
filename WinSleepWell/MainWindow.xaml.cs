@@ -193,21 +193,25 @@ namespace WinSleepWell
         private void EnableMouseButton_Click(object sender, RoutedEventArgs e)
         {
             ChangeDeviceStatus(true, true);
+            UpdateMouseButtonStates();
         }
 
         private void DisableMouseButton_Click(object sender, RoutedEventArgs e)
         {
             ChangeDeviceStatus(false, true);
+            UpdateMouseButtonStates();
         }
 
         private void EnableBiometricButton_Click(object sender, RoutedEventArgs e)
         {
             ChangeDeviceStatus(true, false);
+            UpdateBiometricButtonStates();
         }
 
         private void DisableBiometricButton_Click(object sender, RoutedEventArgs e)
         {
             ChangeDeviceStatus(false, false);
+            UpdateBiometricButtonStates();
         }
 
         private void ChangeDeviceStatus(bool enable, bool isMouse)
