@@ -6,15 +6,22 @@ namespace WinSleepWell
     {
         public static void LogEvent(string message, EventLogEntryType type)
         {
-            if (!EventLog.SourceExists("WinSleepWell"))
+            try
             {
-                EventLog.CreateEventSource("WinSleepWell", "System");
-            }
+                if (!EventLog.SourceExists("WinSleepWell"))
+                {
+                    EventLog.CreateEventSource("WinSleepWell", "Application");
+                }
 
-            using (EventLog eventLog = new EventLog("System"))
+                using (var eventLog = new EventLog("Application"))
+                {
+                    eventLog.Source = "WinSleepWell";
+                    eventLog.WriteEntry(message, type);
+                }
+            }
+            catch (Exception)
             {
-                eventLog.Source = "WinSleepWell";
-                eventLog.WriteEntry(message, type);
+                // ignore
             }
         }
     }

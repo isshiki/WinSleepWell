@@ -12,7 +12,7 @@ namespace WinSleepWell
         private List<DeviceManager.DeviceInfo> _devices;
         private SettingsManager _settingsManager;
         private bool _isInitialized = false;
-        private bool _isLoadingSettings = false;
+        private bool _isLoading = false;
 
         public MainWindow()
         {
@@ -110,7 +110,7 @@ namespace WinSleepWell
         private void MouseInfoComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             UpdateMouseButtonStates();
-            if (_isInitialized && !_isLoadingSettings)
+            if (_isInitialized && !_isLoading)
             {
                 SaveSettings();
             }
@@ -119,7 +119,7 @@ namespace WinSleepWell
         private void BiometricInfoComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             UpdateBiometricButtonStates();
-            if (_isInitialized && !_isLoadingSettings)
+            if (_isInitialized && !_isLoading)
             {
                 SaveSettings();
             }
@@ -211,21 +211,26 @@ namespace WinSleepWell
             var result = _deviceManager.ChangeDeviceStatus(deviceId, enable);
             MessageBox.Show(result);
 
-            // LoadDevicesInfo(); // Refresh the list
+            ReloadDevicesInfo();
         }
 
         private void ReloadDevicesInfo_Click(object sender, RoutedEventArgs e)
         {
-            _isLoadingSettings = true;
+            ReloadDevicesInfo();
+        }
+
+        private void ReloadDevicesInfo()
+        {
+            _isLoading = true;
             _devices = _deviceManager.GetDevices();
             LoadDevicesInfo();
             LoadSettings(); // Load settings after refreshing the device list
-            _isLoadingSettings = false;
+            _isLoading = false;
         }
 
         private void AutoToggleCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            if (_isInitialized && !_isLoadingSettings)
+            if (_isInitialized && !_isLoading)
             {
                 SaveSettings();
             }
@@ -233,7 +238,7 @@ namespace WinSleepWell
 
         private void AutoToggleCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (_isInitialized && !_isLoadingSettings)
+            if (_isInitialized && !_isLoading)
             {
                 SaveSettings();
             }
@@ -254,14 +259,14 @@ namespace WinSleepWell
 
         private void LoadSettings()
         {
-            _isLoadingSettings = true;
+            _isLoading = true;
             var settings = _settingsManager.LoadSettings();
 
             SelectComboBoxItem(MouseInfoComboBox, settings?.MouseDeviceId ?? String.Empty);
             SelectComboBoxItem(BiometricInfoComboBox, settings?.BiometricDeviceId ?? String.Empty);
             MouseAutoToggleCheckBox.IsChecked = settings?.MouseAutoToggle ?? true;
             BiometricAutoToggleCheckBox.IsChecked = settings?.BiometricAutoToggle ?? true;
-            _isLoadingSettings = false;
+            _isLoading = false;
         }
 
         private void SelectComboBoxItem(System.Windows.Controls.ComboBox comboBox, string item)

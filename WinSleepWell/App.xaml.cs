@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Security.Principal;
 using System.Windows;
 using Application = System.Windows.Application;
