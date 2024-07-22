@@ -13,10 +13,8 @@ namespace WinSleepWell
         private const int DEVICE_NOTIFY_CALLBACK = 2;
         
         private const int PBT_APMSUSPEND = 4; // (0x4) - System is suspending operation.
-        private const int PBT_APMSTANDBY = 5;
-        private const int PBT_APMRESUMESUSPEND = 7; // (0x7) - Operation is resuming from a low-power state.This message is sent after PBT_APMRESUMEAUTOMATIC if the resume is triggered by user input, such as pressing a key.
-        private const int PBT_APMRESUMESTANDBY = 8;
         private const int PBT_APMRESUMEAUTOMATIC = 18; // (0x12) - Operation is resuming automatically from a low-power state.This message is sent every time the system resumes.
+        private const int PBT_APMRESUMESUSPEND = 7; // (0x7) - Operation is resuming from a low-power state.This message is sent after PBT_APMRESUMEAUTOMATIC if the resume is triggered by user input, such as pressing a key.
 
         private delegate uint DeviceNotifyCallbackRoutine(IntPtr context, int type, IntPtr setting);
 
@@ -67,25 +65,19 @@ namespace WinSleepWell
         {
             switch (type)
             {
-                case PBT_APMSTANDBY:  // unspported?
-                    EventLogger.LogEvent("PBT_APMSTANDBY", EventLogEntryType.Information);
-                    Suspend?.Invoke(this, new EventArgs());
-                    return 0;
                 case PBT_APMSUSPEND:
-                    EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
+                    //EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
                     Suspend?.Invoke(this, new EventArgs());
                     return 0;
-                case PBT_APMRESUMESTANDBY:  // unspported?
-                    EventLogger.LogEvent("PBT_APMRESUMESTANDBY", EventLogEntryType.Information);
+                case PBT_APMRESUMEAUTOMATIC:
+                    //EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
                     Resume?.Invoke(this, EventArgs.Empty);
                     return 0;
                 case PBT_APMRESUMESUSPEND:
-                //case PBT_APMRESUMEAUTOMATIC:
-                    EventLogger.LogEvent("PBT_APMRESUMESUSPEND", EventLogEntryType.Information);
-                    Resume?.Invoke(this, EventArgs.Empty);
-                    return 0;
+                    //EventLogger.LogEvent("PBT_APMRESUMESUSPEND", EventLogEntryType.Information);
+                    break;
                 default:
-                    EventLogger.LogEvent("PBT_SOMETHING" + type.ToString(), EventLogEntryType.Information);
+                    //EventLogger.LogEvent("PBT_TypeID_" + type.ToString(), EventLogEntryType.Information);
                     break;
             }
             return 1;

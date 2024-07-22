@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Windows;
+using System.Windows.Threading;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
@@ -10,6 +11,7 @@ namespace WinSleepWell
     public partial class App : Application
     {
         public MainWindow mainWindow;
+        private DispatcherTimer _initTimer;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -17,13 +19,22 @@ namespace WinSleepWell
 
             if (!IsAdministrator())
             {
-                MessageBox.Show("This application must be run as an administrator.", "Insufficient Privileges", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (Environment.UserInteractive)
+                {
+                    MessageBox.Show("This application must be run as an administrator.", "Insufficient Privileges", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    EventLogger.LogEvent("[Insufficient Privileges] This application must be run as an administrator.", EventLogEntryType.Error);
+                }
                 Application.Current.Shutdown();
+                return;
             }
-            else
-            {
-                mainWindow = new MainWindow();
-            }
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            DispatcherUnhandledException += App_DispatcherUnhandledException;
+
+            mainWindow = new MainWindow();
         }
 
         private bool IsAdministrator()
@@ -36,6 +47,21 @@ namespace WinSleepWell
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var ex = e.ExceptionObject as Exception;
+            string logMessage = $"Unhandled Exception in AppDoma: {ex?.Message ?? ""}\nStack Trace: {ex?.StackTrace ?? ""}";
+            EventLogger.LogEvent(logMessage, EventLogEntryType.Error);
+        }
+
+        private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            var ex = e.Exception;
+            string logMessage = $"Unhandled Dispatcher Exception:  {ex.Message}\nStack Trace: {ex.StackTrace}";
+            EventLogger.LogEvent(logMessage, EventLogEntryType.Error);
+            e.Handled = true;
         }
     }
 }

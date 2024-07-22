@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System.Diagnostics;
 using System.Windows;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
@@ -16,6 +17,8 @@ namespace WinSleepWell
         private bool _isLoadingSettings = false;
         private bool _mouseAutoToggle;
         private bool _biometricAutoToggle;
+        private string _selectedMouseDevice;
+        private string _selectedBiometricDevice;
 
         public MainWindow()
         {
@@ -35,12 +38,14 @@ namespace WinSleepWell
 
         private void InitializeNotifyIcon()
         {
+            var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
             _notifyIcon = new NotifyIcon
             {
-                Icon = new Icon("app.ico"), // アイコンファイルをプロジェクトに追加しておく
+                Icon = new Icon(iconPath),
                 Visible = true,
                 Text = "WinSleepWell"
             };
+            //EventLogger.LogEvent("Added notify-icon", EventLogEntryType.Information);
 
             _notifyIcon.DoubleClick += (s, e) => ShowMainWindow();
 
@@ -93,12 +98,12 @@ namespace WinSleepWell
         {
             if (_mouseAutoToggle)
             {
-                ChangeDeviceStatus(false, true);
+                ChangeDeviceStatus(false, true, false);
             }
 
             if (_biometricAutoToggle)
             {
-                ChangeDeviceStatus(false, false);
+                ChangeDeviceStatus(false, false, false);
             }
         }
 
@@ -106,12 +111,12 @@ namespace WinSleepWell
         {
             if (_mouseAutoToggle)
             {
-                ChangeDeviceStatus(true, true);
+                ChangeDeviceStatus(true, true, false);
             }
 
             if (_biometricAutoToggle)
             {
-                ChangeDeviceStatus(true, false);
+                ChangeDeviceStatus(true, false, false);
             }
         }
 
@@ -141,6 +146,7 @@ namespace WinSleepWell
 
         private void MouseInfoComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            _selectedMouseDevice = MouseInfoComboBox.SelectedItem?.ToString() ?? "None";
             UpdateMouseButtonStates();
             if (_isInitialized && !_isLoadingSettings)
             {
@@ -150,6 +156,7 @@ namespace WinSleepWell
 
         private void BiometricInfoComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            _selectedBiometricDevice = BiometricInfoComboBox.SelectedItem?.ToString() ?? "None";
             UpdateBiometricButtonStates();
             if (_isInitialized && !_isLoadingSettings)
             {
@@ -201,49 +208,57 @@ namespace WinSleepWell
 
         private void EnableMouseButton_Click(object sender, RoutedEventArgs e)
         {
-            ChangeDeviceStatus(true, true);
+            var result = ChangeDeviceStatus(true, true, true);
             UpdateMouseButtonStates();
+            MessageBox.Show(result);
         }
 
         private void DisableMouseButton_Click(object sender, RoutedEventArgs e)
         {
-            ChangeDeviceStatus(false, true);
+            var result = ChangeDeviceStatus(false, true, true);
             UpdateMouseButtonStates();
+            MessageBox.Show(result);
         }
 
         private void EnableBiometricButton_Click(object sender, RoutedEventArgs e)
         {
-            ChangeDeviceStatus(true, false);
+            var result = ChangeDeviceStatus(true, false, true);
             UpdateBiometricButtonStates();
+            MessageBox.Show(result);
         }
 
         private void DisableBiometricButton_Click(object sender, RoutedEventArgs e)
         {
-            ChangeDeviceStatus(false, false);
+            var result = ChangeDeviceStatus(false, false, true);
             UpdateBiometricButtonStates();
+            MessageBox.Show(result);
         }
 
-        private void ChangeDeviceStatus(bool enable, bool isMouse)
+        private string ChangeDeviceStatus(bool enable, bool isMouse, bool canUseGUI)
         {
-            var selectedItem = isMouse ? MouseInfoComboBox.SelectedItem?.ToString() : BiometricInfoComboBox.SelectedItem?.ToString();
+            var selectedItem = isMouse ? _selectedMouseDevice : _selectedBiometricDevice;
 
             if (selectedItem == "None" || string.IsNullOrEmpty(selectedItem))
             {
                 MessageBox.Show("Please select a device.");
-                return;
+                return String.Empty;
             }
 
             var deviceId = selectedItem?.Split(' ')[0] ?? "";
             if (string.IsNullOrEmpty(deviceId))
             {
                 MessageBox.Show("Please select a device.");
-                return;
+                return String.Empty;
             }
 
-            var result = _deviceManager.ChangeDeviceStatus(deviceId, enable);
-            MessageBox.Show(result);
+            var result = _deviceManager.ChangeDeviceStatus(deviceId, enable, canUseGUI);
 
-            ReloadDevicesInfo();
+            if (canUseGUI)
+            {
+                ReloadDevicesInfo();
+            }
+
+            return result;
         }
 
         private void ReloadDevicesInfo_Click(object sender, RoutedEventArgs e)
@@ -312,10 +327,15 @@ namespace WinSleepWell
             _isLoadingSettings = true;
             var settings = _settingsManager.LoadSettings();
 
-            SelectComboBoxItem(MouseInfoComboBox, settings?.MouseDeviceId ?? String.Empty);
-            SelectComboBoxItem(BiometricInfoComboBox, settings?.BiometricDeviceId ?? String.Empty);
-            MouseAutoToggleCheckBox.IsChecked = _mouseAutoToggle = settings?.MouseAutoToggle ?? true;
-            BiometricAutoToggleCheckBox.IsChecked = _biometricAutoToggle = settings?.BiometricAutoToggle ?? true;
+            _selectedMouseDevice = settings?.MouseDeviceId ?? "None";
+            _selectedBiometricDevice = settings?.BiometricDeviceId ?? "None";
+            SelectComboBoxItem(MouseInfoComboBox, _selectedMouseDevice);
+            SelectComboBoxItem(BiometricInfoComboBox, _selectedBiometricDevice);
+
+            _mouseAutoToggle = settings?.MouseAutoToggle ?? false;
+            _biometricAutoToggle = settings?.BiometricAutoToggle ?? false;
+            MouseAutoToggleCheckBox.IsChecked = _mouseAutoToggle;
+            BiometricAutoToggleCheckBox.IsChecked = _biometricAutoToggle;
             _isLoadingSettings = false;
         }
 
@@ -328,15 +348,39 @@ namespace WinSleepWell
                     if (comboBoxItem.ToString() == item)
                     {
                         comboBox.SelectedItem = comboBoxItem;
+                        if (comboBox == MouseInfoComboBox)
+                        {
+                            _selectedMouseDevice = item;
+                        }
+                        else if (comboBox == BiometricInfoComboBox)
+                        {
+                            _selectedBiometricDevice = item;
+                        }
                         return;
                     }
                 }
 
                 comboBox.SelectedIndex = 1; // Select the first item if the item is not found
+                if (comboBox == MouseInfoComboBox)
+                {
+                    _selectedMouseDevice = comboBox.Items[1].ToString() ?? "None";
+                }
+                else if (comboBox == BiometricInfoComboBox)
+                {
+                    _selectedBiometricDevice = comboBox.Items[1].ToString() ?? "None";
+                }
             }
             else
             {
                 comboBox.SelectedIndex = 0; // Select "None" if the item is not found
+                if (comboBox == MouseInfoComboBox)
+                {
+                    _selectedMouseDevice = "None";
+                }
+                else if (comboBox == BiometricInfoComboBox)
+                {
+                    _selectedBiometricDevice = "None";
+                }
             }
         }
     }

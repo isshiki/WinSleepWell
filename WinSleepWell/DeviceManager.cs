@@ -48,7 +48,7 @@ namespace WinSleepWell
             return devices;
         }
 
-        public string ChangeDeviceStatus(string deviceId, bool enable)
+        public string ChangeDeviceStatus(string deviceId, bool enable, bool canUseGUI)
         {
             try
             {
@@ -58,9 +58,10 @@ namespace WinSleepWell
                     {
                         object[] methodArgs = { string.Empty };
                         mobj.InvokeMethod(enable ? "Enable" : "Disable", methodArgs);
+                        var prefix = canUseGUI ? "" : (enable ? "[RESUME] " : "[SUSPEND] ");
                         var deviceName = mobj["Name"].ToString() ?? "Unknown device";
                         var resultMessage = $"{deviceName} is " + (enable ? "Enabled." : "Disabled.");
-                        EventLogger.LogEvent(resultMessage, EventLogEntryType.Information);
+                        EventLogger.LogEvent(prefix + resultMessage, EventLogEntryType.Information);
                         return resultMessage;
                     }
                 }
