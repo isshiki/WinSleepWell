@@ -20,8 +20,10 @@ namespace WinSleepWell
                 MessageBox.Show("This application must be run as an administrator.", "Insufficient Privileges", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
             }
-
-            mainWindow = new MainWindow();
+            else
+            {
+                mainWindow = new MainWindow();
+            }
         }
 
         private bool IsAdministrator()
