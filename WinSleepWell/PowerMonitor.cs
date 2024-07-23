@@ -67,7 +67,7 @@ namespace WinSleepWell
             {
                 case PBT_APMSUSPEND:
                     //EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
-                    Suspend?.Invoke(this, new EventArgs());
+                    Suspend?.Invoke(this, EventArgs.Empty);
                     return 0;
                 case PBT_APMRESUMEAUTOMATIC:
                     //EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
