@@ -80,7 +80,7 @@ namespace WinSleepWell
                     //EventLogger.LogEvent("PBT_TypeID_" + type.ToString(), EventLogEntryType.Information);
                     break;
             }
-            return 1;
+            return 0;
         }
 
         public void Dispose()
