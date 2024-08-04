@@ -7,10 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinSleepWell", "WinSleepWel
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目", "ソリューション項目", "{085731D3-F91E-41C6-91D6-4C356C542944}"
 	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-		LICENSE = LICENSE
-		README-ja.md = README-ja.md
-		README.md = README.md
+		../.gitignore = ../.gitignore
+		../LICENSE = ../LICENSE
+		../README-ja.md = ../README-ja.md
+		../README.md = ../README.md
 	EndProjectSection
 EndProject
 Global
