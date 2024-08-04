@@ -9,7 +9,7 @@
     <Description>A taskbar-resident application that minimizes wake-ups from sleep caused by mouse movement as much as possible.</Description>
     <Copyright>Masahiko Isshiki.</Copyright>
     <PackageProjectUrl>https://github.com/isshiki/WinSleepWell</PackageProjectUrl>
-    <PackageIcon>icon.png</PackageIcon>
+    <PackageIcon>..\..\images\icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/isshiki/WinSleepWell</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -17,8 +17,11 @@
     <NoWin32Manifest>true</NoWin32Manifest>
     <UseWindowsForms>True</UseWindowsForms>
     <FileVersion>0.1.0.0</FileVersion>
-    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\images\app.ico</ApplicationIcon>
     <StartupObject>WinSleepWell.App</StartupObject>
+    <BaseOutputPath>..\..\bin</BaseOutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -31,7 +34,7 @@
 
   <ItemGroup>
     <Content Include="..\..\images\app.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

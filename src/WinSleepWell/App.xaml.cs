@@ -11,8 +11,7 @@ namespace WinSleepWell
     public partial class App : Application
     {
         public MainWindow mainWindow;
-        private DispatcherTimer _initTimer;
-
+        
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);

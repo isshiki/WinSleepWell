@@ -12,20 +12,19 @@
 │   ├── /WinSleepWellService   # Windowsサービスのプロジェクト
 │   ├── /WinSleepWellLib       # 共通ライブラリのプロジェクト
 │   ├── /WinSleepWellSetup     # セットアッププロジェクト（将来的に追加予定）
-│   ├── WinSleepWell.sln       # ソリューションファイル
-│   └── README.md              # プロジェクト用のREADME
+│   └── WinSleepWell.sln       # ソリューションファイル
 │
 ├── /bin
-│   ├── /Debug                 # デバッグビルドの成果物
-│   └── /Release               # リリースビルドの成果物
+│   └── /Release               # リリースしたプログラム内容
 │
-├── /images                    # プロジェクトで使用される画像
+├── /images                     # プロジェクトで使用される画像
 │
 ├── .gitignore
-├── build.ps1                  # ビルドスクリプト
-├── README.md                  # 英語のREADMEファイル
-├── README-ja.md               # 日本語のREADMEファイル
-└── LICENSE                    # ライセンスファイル
+├── build.ps1                   # ビルドスクリプト
+├── README.md                   # 英語のREADMEファイル
+├── README-ja.md                # 日本語のREADMEファイル
+├── LICENSE                     # ライセンスファイル
+└── CONTRIBUTING.md             # コントリビューション（開発貢献）ガイドライン
 ```
 
 ## 開発方法
