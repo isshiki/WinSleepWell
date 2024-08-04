@@ -51,15 +51,26 @@ namespace WinSleepWell
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var ex = e.ExceptionObject as Exception;
-            string logMessage = $"Unhandled Exception in AppDoma: {ex?.Message ?? ""}\nStack Trace: {ex?.StackTrace ?? ""}";
+            string logMessage = $"Unhandled Exception in AppDomain: {ex?.Message ?? "No Exception Message"}\nStack Trace: {ex?.StackTrace ?? "No Stack Trace"}";
             EventLogger.LogEvent(logMessage, EventLogEntryType.Error);
+
+            // Optional: Show a user-friendly message box
+            MessageBox.Show("An unexpected error occurred. The application will close.", "Application Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            // Optional: Force application to close
+            Environment.Exit(1);
         }
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             var ex = e.Exception;
-            string logMessage = $"Unhandled Dispatcher Exception:  {ex.Message}\nStack Trace: {ex.StackTrace}";
+            string logMessage = $"Unhandled Dispatcher Exception: {ex.Message}\nStack Trace: {ex.StackTrace}";
             EventLogger.LogEvent(logMessage, EventLogEntryType.Error);
+
+            // Optional: Show a user-friendly message box
+            MessageBox.Show("An error occurred in the application. Please save your work and restart the application.", "Application Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+            // Prevent the application from crashing
             e.Handled = true;
         }
     }

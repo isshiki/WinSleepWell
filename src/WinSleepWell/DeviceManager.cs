@@ -58,9 +58,11 @@ namespace WinSleepWell
                     {
                         object[] methodArgs = { string.Empty };
                         mobj.InvokeMethod(enable ? "Enable" : "Disable", methodArgs);
+
                         var prefix = canUseGUI ? $"[{message}] " : (enable ? $"[RESUME{message}] " : $"[SUSPEND{message}] ");
                         var deviceName = mobj["Name"].ToString() ?? "Unknown device";
                         var resultMessage = $"{deviceName} is " + (enable ? "Enabled." : "Disabled.");
+
                         EventLogger.LogEvent(prefix + resultMessage, EventLogEntryType.Information);
                         return resultMessage;
                     }
@@ -68,13 +70,13 @@ namespace WinSleepWell
             }
             catch (ManagementException ex)
             {
-                var errorMessage = "An error occurred while changing the device status: " + ex.Message;
+                var errorMessage = "An error occurred while changing the device status: " + ex.Message + "\nStack Trace: " + ex.StackTrace;
                 EventLogger.LogEvent(errorMessage, EventLogEntryType.Error);
                 return errorMessage;
             }
             catch (Exception ex)
             {
-                var errorMessage = "Something went wrong: " + ex.Message;
+                var errorMessage = "Something went wrong while changing the device status: " + ex.Message + "\nStack Trace: " + ex.StackTrace;
                 EventLogger.LogEvent(errorMessage, EventLogEntryType.Error);
                 return errorMessage;
             }

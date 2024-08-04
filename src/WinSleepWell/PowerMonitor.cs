@@ -33,6 +33,7 @@ namespace WinSleepWell
         private const int PBT_POWERSETTINGCHANGE = 32787; // (0x8013) - A power setting change event occurred.
 
         private delegate uint DeviceNotifyCallbackRoutine(IntPtr context, int type, IntPtr setting);
+        private DeviceNotifyCallbackRoutine _callback;
 
         [StructLayout(LayoutKind.Sequential)]
         struct DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS
@@ -54,104 +55,124 @@ namespace WinSleepWell
 
         public PowerMonitor()
         {
-            var callback = new DeviceNotifyCallbackRoutine(NotificationCallback);
-            _gcHandle = GCHandle.Alloc(callback);
-            var parameters = new DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS
+            try
             {
-                Callback = new DeviceNotifyCallbackRoutine(NotificationCallback),
-                Context = IntPtr.Zero
-            };
+                _callback = NotificationCallback;
+                _gcHandle = GCHandle.Alloc(_callback);
 
-            var recipient = Marshal.AllocHGlobal(Marshal.SizeOf(parameters));
-            Marshal.StructureToPtr(parameters, recipient, false);
+                var parameters = new DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS
+                {
+                    Callback = _callback,
+                    Context = IntPtr.Zero
+                };
 
-            var result = PowerRegisterSuspendResumeNotification(DEVICE_NOTIFY_CALLBACK, recipient, out _registrationHandle);
+                var recipient = Marshal.AllocHGlobal(Marshal.SizeOf(parameters));
+                Marshal.StructureToPtr(parameters, recipient, false);
 
-            Marshal.FreeHGlobal(recipient);
+                var result = PowerRegisterSuspendResumeNotification(DEVICE_NOTIFY_CALLBACK, recipient, out _registrationHandle);
 
-            if (result != 0)
+                Marshal.FreeHGlobal(recipient);
+
+                if (result != 0)
+                {
+                    _gcHandle.Free();
+                    EventLogger.LogEvent("Something went wrong: DEVICE_NOTIFY_CALLBACK", EventLogEntryType.Error);
+                    throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+                }
+            }
+            catch (Exception ex)
             {
-                _gcHandle.Free();
-                EventLogger.LogEvent("Something went wrong: DEVICE_NOTIFY_CALLBACK", EventLogEntryType.Error);
-                throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+                EventLogger.LogEvent("Error initializing PowerMonitor: " + ex.Message, EventLogEntryType.Error);
+                throw;
             }
         }
 
         private uint NotificationCallback(IntPtr context, int type, IntPtr setting)
         {
-            switch (type)
+            try
             {
-                case PBT_APMSUSPEND:
+                switch (type)
+                {
+                    case PBT_APMSUSPEND:
 #if DEBUG
-                    EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
 #endif
-                    // System is suspending operation
-                    Suspend?.Invoke(this, new PowerEventArgs(" on PBT_APMSUSPEND"));
-                    IsSuspended = true;
-                    return 0;
-                case PBT_APMRESUMEAUTOMATIC:
+                        // System is suspending operation
+                        Suspend?.Invoke(this, new PowerEventArgs(" on PBT_APMSUSPEND"));
+                        IsSuspended = true;
+                        return 0;
+                    case PBT_APMRESUMEAUTOMATIC:
 #if DEBUG
-                    EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
 #endif                    // System is resuming automatically from a low-power state
-                    Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMEAUTOMATIC"));
-                    IsSuspended = false;
-                    return 0;
-                case PBT_APMRESUMECRITICAL:
+                        Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMEAUTOMATIC"));
+                        IsSuspended = false;
+                        return 0;
+                    case PBT_APMRESUMECRITICAL:
 #if DEBUG
-                    EventLogger.LogEvent("PBT_APMRESUMECRITICAL", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_APMRESUMECRITICAL", EventLogEntryType.Information);
 #endif
-                    // System is resuming after a critical suspension
-                    Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMECRITICAL"));
-                    IsSuspended = false;
-                    return 0;
-                case PBT_APMRESUMESUSPEND:
-                    // System is resuming from a low-power state triggered by user input
+                        // System is resuming after a critical suspension
+                        Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMECRITICAL"));
+                        IsSuspended = false;
+                        return 0;
+                    case PBT_APMRESUMESUSPEND:
+                        // System is resuming from a low-power state triggered by user input
 #if DEBUG
-                    EventLogger.LogEvent("PBT_APMRESUMESUSPEND", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_APMRESUMESUSPEND", EventLogEntryType.Information);
 #endif
-                    return 0;
-                case PBT_APMBATTERYLOW:
-                    // System's battery power is low
+                        return 0;
+                    case PBT_APMBATTERYLOW:
+                        // System's battery power is low
 #if DEBUG
-                    EventLogger.LogEvent("PBT_APMBATTERYLOW", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_APMBATTERYLOW", EventLogEntryType.Information);
 #endif
-                    break;
-                case PBT_APMOEMEVENT:
-                    // OEM-defined event occurred
+                        break;
+                    case PBT_APMOEMEVENT:
+                        // OEM-defined event occurred
 #if DEBUG
-                    EventLogger.LogEvent("PBT_APMOEMEVENT", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_APMOEMEVENT", EventLogEntryType.Information);
 #endif
-                    break;
-                case PBT_APMPOWERSTATUSCHANGE:
-                    // Power status has changed
+                        break;
+                    case PBT_APMPOWERSTATUSCHANGE:
+                        // Power status has changed
 #if DEBUG
-                    EventLogger.LogEvent("PBT_APMPOWERSTATUSCHANGE", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_APMPOWERSTATUSCHANGE", EventLogEntryType.Information);
 #endif
-                    break;
-                case PBT_APMQUERYSUSPEND:
-                    // System is requesting permission to suspend
+                        break;
+                    case PBT_APMQUERYSUSPEND:
+                        // System is requesting permission to suspend
 #if DEBUG
-                    EventLogger.LogEvent("PBT_APMQUERYSUSPEND", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_APMQUERYSUSPEND", EventLogEntryType.Information);
 #endif
-                    break;
-                case PBT_APMQUERYSUSPENDFAILED:
-                    // Permission to suspend was denied
+                        break;
+                    case PBT_APMQUERYSUSPENDFAILED:
+                        // Permission to suspend was denied
 #if DEBUG
-                    EventLogger.LogEvent("PBT_APMQUERYSUSPENDFAILED", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_APMQUERYSUSPENDFAILED", EventLogEntryType.Information);
 #endif
-                    break;
-                case PBT_POWERSETTINGCHANGE:
-                    // A power setting change event occurred
+                        break;
+                    case PBT_POWERSETTINGCHANGE:
+                        // A power setting change event occurred
 #if DEBUG
-                    EventLogger.LogEvent("PBT_POWERSETTINGCHANGE", EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_POWERSETTINGCHANGE", EventLogEntryType.Information);
 #endif
-                    break;
-                default:
-                    // Other power management messages
+                        break;
+                    default:
+                        // Other power management messages
 #if DEBUG
-                    EventLogger.LogEvent("PBT_TypeID_" + type.ToString(), EventLogEntryType.Information);
+                        EventLogger.LogEvent("PBT_TypeID_" + type.ToString(), EventLogEntryType.Information);
 #endif
-                    break;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $"Error in NotificationCallback: {ex.Message}\nStack Trace: {ex.StackTrace}\nContext: {context}\nType: {type}";
+                EventLogger.LogEvent(errorMessage, EventLogEntryType.Error);
+
+                // Optional: return an error code specific to your application
+                return 1;
             }
             return 0;
         }
