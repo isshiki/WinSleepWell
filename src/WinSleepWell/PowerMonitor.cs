@@ -47,10 +47,10 @@ namespace WinSleepWell
         [DllImport("powrprof.dll", SetLastError = true)]
         private static extern uint PowerUnregisterSuspendResumeNotification(IntPtr registrationHandle);
 
-
-
         private IntPtr _registrationHandle;
         private GCHandle _gcHandle;
+
+        public bool IsSuspended { get; private set; }
 
         public PowerMonitor()
         {
@@ -84,21 +84,23 @@ namespace WinSleepWell
                 case PBT_APMSUSPEND:
                     // System is suspending operation
                     Suspend?.Invoke(this, new PowerEventArgs(" on PBT_APMSUSPEND"));
+                    IsSuspended = true;
                     return 0;
                 case PBT_APMRESUMEAUTOMATIC:
                     // System is resuming automatically from a low-power state
                     Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMEAUTOMATIC"));
+                    IsSuspended = false;
                     return 0;
                 case PBT_APMRESUMECRITICAL:
                     // System is resuming after a critical suspension
                     Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMECRITICAL"));
+                    IsSuspended = false;
                     return 0;
                 case PBT_APMRESUMESUSPEND:
                     // System is resuming from a low-power state triggered by user input
 #if DEBUG
                     EventLogger.LogEvent("PBT_APMRESUMESUSPEND", EventLogEntryType.Information);
 #endif
-                    Resume?.Invoke(this, new PowerEventArgs("PBT_APMRESUMESUSPEND"));
                     return 0;
                 case PBT_APMBATTERYLOW:
                     // System's battery power is low
