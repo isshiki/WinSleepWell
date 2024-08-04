@@ -94,29 +94,29 @@ namespace WinSleepWell
             Hide();
         }
 
-        private void OnSuspend(object sender, EventArgs e)
+        private void OnSuspend(object sender, PowerEventArgs e)
         {
             if (_mouseAutoToggle)
             {
-                ChangeDeviceStatus(false, true, false);
+                ChangeDeviceStatus(false, true, false, e.Message);
             }
 
             if (_biometricAutoToggle)
             {
-                ChangeDeviceStatus(false, false, false);
+                ChangeDeviceStatus(false, false, false, e.Message);
             }
         }
 
-        private void OnResume(object sender, EventArgs e)
+        private void OnResume(object sender, PowerEventArgs e)
         {
             if (_mouseAutoToggle)
             {
-                ChangeDeviceStatus(true, true, false);
+                ChangeDeviceStatus(true, true, false, e.Message);
             }
 
             if (_biometricAutoToggle)
             {
-                ChangeDeviceStatus(true, false, false);
+                ChangeDeviceStatus(true, false, false, e.Message);
             }
         }
 
@@ -208,33 +208,33 @@ namespace WinSleepWell
 
         private void EnableMouseButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = ChangeDeviceStatus(true, true, true);
+            var result = ChangeDeviceStatus(true, true, true, " manually");
             UpdateMouseButtonStates();
             MessageBox.Show(result);
         }
 
         private void DisableMouseButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = ChangeDeviceStatus(false, true, true);
+            var result = ChangeDeviceStatus(false, true, true, " manually");
             UpdateMouseButtonStates();
             MessageBox.Show(result);
         }
 
         private void EnableBiometricButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = ChangeDeviceStatus(true, false, true);
+            var result = ChangeDeviceStatus(true, false, true, " manually");
             UpdateBiometricButtonStates();
             MessageBox.Show(result);
         }
 
         private void DisableBiometricButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = ChangeDeviceStatus(false, false, true);
+            var result = ChangeDeviceStatus(false, false, true, " manually");
             UpdateBiometricButtonStates();
             MessageBox.Show(result);
         }
 
-        private string ChangeDeviceStatus(bool enable, bool isMouse, bool canUseGUI)
+        private string ChangeDeviceStatus(bool enable, bool isMouse, bool canUseGUI, string message)
         {
             var selectedItem = isMouse ? _selectedMouseDevice : _selectedBiometricDevice;
 
@@ -251,7 +251,7 @@ namespace WinSleepWell
                 return String.Empty;
             }
 
-            var result = _deviceManager.ChangeDeviceStatus(deviceId, enable, canUseGUI);
+            var result = _deviceManager.ChangeDeviceStatus(deviceId, enable, canUseGUI, message);
 
             if (canUseGUI)
             {

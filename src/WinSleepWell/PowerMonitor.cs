@@ -1,20 +1,36 @@
-﻿using System;
-using System.Diagnostics;
-using System.Net;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace WinSleepWell
 {
+    public class PowerEventArgs : EventArgs
+    {
+        public string Message { get; }
+
+        public PowerEventArgs(string message)
+        {
+            Message = message;
+        }
+    }
+
     public class PowerMonitor
     {
-        public event EventHandler Suspend;
-        public event EventHandler Resume;
+        public event EventHandler<PowerEventArgs> Suspend;
+        public event EventHandler<PowerEventArgs> Resume;
 
         private const int DEVICE_NOTIFY_CALLBACK = 2;
         
         private const int PBT_APMSUSPEND = 4; // (0x4) - System is suspending operation.
         private const int PBT_APMRESUMEAUTOMATIC = 18; // (0x12) - Operation is resuming automatically from a low-power state.This message is sent every time the system resumes.
         private const int PBT_APMRESUMESUSPEND = 7; // (0x7) - Operation is resuming from a low-power state.This message is sent after PBT_APMRESUMEAUTOMATIC if the resume is triggered by user input, such as pressing a key.
+        private const int PBT_APMRESUMECRITICAL = 6; // (0x6) - Operation is resuming after a critical suspension.
+        // Other power management messages
+        private const int PBT_APMBATTERYLOW = 9; // (0x9) - The system's battery power is low.
+        private const int PBT_APMOEMEVENT = 11; // (0xB) - OEM-defined event occurred.
+        private const int PBT_APMPOWERSTATUSCHANGE = 10; // (0xA) - Power status has changed.
+        private const int PBT_APMQUERYSUSPEND = 0; // (0x0) - The system is requesting permission to suspend.
+        private const int PBT_APMQUERYSUSPENDFAILED = 2; // (0x2) - Permission to suspend was denied.
+        private const int PBT_POWERSETTINGCHANGE = 32787; // (0x8013) - A power setting change event occurred.
 
         private delegate uint DeviceNotifyCallbackRoutine(IntPtr context, int type, IntPtr setting);
 
@@ -66,18 +82,65 @@ namespace WinSleepWell
             switch (type)
             {
                 case PBT_APMSUSPEND:
-                    //EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
-                    Suspend?.Invoke(this, EventArgs.Empty);
+                    // System is suspending operation
+                    Suspend?.Invoke(this, new PowerEventArgs(" on PBT_APMSUSPEND"));
                     return 0;
                 case PBT_APMRESUMEAUTOMATIC:
-                    //EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
-                    Resume?.Invoke(this, EventArgs.Empty);
+                    // System is resuming automatically from a low-power state
+                    Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMEAUTOMATIC"));
+                    return 0;
+                case PBT_APMRESUMECRITICAL:
+                    // System is resuming after a critical suspension
+                    Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMECRITICAL"));
                     return 0;
                 case PBT_APMRESUMESUSPEND:
-                    //EventLogger.LogEvent("PBT_APMRESUMESUSPEND", EventLogEntryType.Information);
+                    // System is resuming from a low-power state triggered by user input
+#if DEBUG
+                    EventLogger.LogEvent("PBT_APMRESUMESUSPEND", EventLogEntryType.Information);
+#endif
+                    Resume?.Invoke(this, new PowerEventArgs("PBT_APMRESUMESUSPEND"));
+                    return 0;
+                case PBT_APMBATTERYLOW:
+                    // System's battery power is low
+#if DEBUG
+                    EventLogger.LogEvent("PBT_APMBATTERYLOW", EventLogEntryType.Information);
+#endif
+                    break;
+                case PBT_APMOEMEVENT:
+                    // OEM-defined event occurred
+#if DEBUG
+                    EventLogger.LogEvent("PBT_APMOEMEVENT", EventLogEntryType.Information);
+#endif
+                    break;
+                case PBT_APMPOWERSTATUSCHANGE:
+                    // Power status has changed
+#if DEBUG
+                    EventLogger.LogEvent("PBT_APMPOWERSTATUSCHANGE", EventLogEntryType.Information);
+#endif
+                    break;
+                case PBT_APMQUERYSUSPEND:
+                    // System is requesting permission to suspend
+#if DEBUG
+                    EventLogger.LogEvent("PBT_APMQUERYSUSPEND", EventLogEntryType.Information);
+#endif
+                    break;
+                case PBT_APMQUERYSUSPENDFAILED:
+                    // Permission to suspend was denied
+#if DEBUG
+                    EventLogger.LogEvent("PBT_APMQUERYSUSPENDFAILED", EventLogEntryType.Information);
+#endif
+                    break;
+                case PBT_POWERSETTINGCHANGE:
+                    // A power setting change event occurred
+#if DEBUG
+                    EventLogger.LogEvent("PBT_POWERSETTINGCHANGE", EventLogEntryType.Information);
+#endif
                     break;
                 default:
-                    //EventLogger.LogEvent("PBT_TypeID_" + type.ToString(), EventLogEntryType.Information);
+                    // Other power management messages
+#if DEBUG
+                    EventLogger.LogEvent("PBT_TypeID_" + type.ToString(), EventLogEntryType.Information);
+#endif
                     break;
             }
             return 0;
