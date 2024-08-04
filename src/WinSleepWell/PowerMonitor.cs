@@ -82,16 +82,24 @@ namespace WinSleepWell
             switch (type)
             {
                 case PBT_APMSUSPEND:
+#if DEBUG
+                    EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
+#endif
                     // System is suspending operation
                     Suspend?.Invoke(this, new PowerEventArgs(" on PBT_APMSUSPEND"));
                     IsSuspended = true;
                     return 0;
                 case PBT_APMRESUMEAUTOMATIC:
-                    // System is resuming automatically from a low-power state
+#if DEBUG
+                    EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
+#endif                    // System is resuming automatically from a low-power state
                     Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMEAUTOMATIC"));
                     IsSuspended = false;
                     return 0;
                 case PBT_APMRESUMECRITICAL:
+#if DEBUG
+                    EventLogger.LogEvent("PBT_APMRESUMECRITICAL", EventLogEntryType.Information);
+#endif
                     // System is resuming after a critical suspension
                     Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMECRITICAL"));
                     IsSuspended = false;
