@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
@@ -23,17 +24,33 @@ namespace WinSleepWell
         public MainWindow()
         {
             InitializeComponent();
-            _deviceManager = new DeviceManager();
-            _settingsManager = new SettingsManager();
-            _devices = _deviceManager.GetDevices();
-            InitializeNotifyIcon();
-            LoadDevicesInfo();
-            LoadSettings();
-            _powerMonitor = new PowerMonitor();
-            _powerMonitor.Suspend += OnSuspend;
-            _powerMonitor.Resume += OnResume;
-            _isInitialized = true;
-            Hide();
+            SetWindowTitleWithVersion();
+            try
+            {
+                _deviceManager = new DeviceManager();
+                _settingsManager = new SettingsManager();
+                _devices = _deviceManager.GetDevices();
+                LoadDevicesInfo();
+                LoadSettings();
+                InitializeNotifyIcon();
+                _powerMonitor = new PowerMonitor();
+                _powerMonitor.Suspend += OnSuspend;
+                _powerMonitor.Resume += OnResume;
+                _isInitialized = true;
+                Hide();
+            }
+            catch (Exception ex)
+            {
+                EventLogger.LogEvent("Failed to initialize MainWindow: " + ex.Message, EventLogEntryType.Error);
+                MessageBox.Show("Initialization failed. Please check the logs for more details.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown();
+            }
+        }
+
+        private void SetWindowTitleWithVersion()
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            this.Title = $"WinSleepWell v.{version}";
         }
 
         private void InitializeNotifyIcon()
