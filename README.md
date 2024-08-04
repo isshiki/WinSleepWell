@@ -6,25 +6,25 @@ This project includes a service that detects when Windows wakes from sleep and p
 
 ```
 /MyProject
-„ 
-„¥„Ÿ„Ÿ /src
-„    „¥„Ÿ„Ÿ /WinSleepWell          # Project for the WPF tray application
-„    „¥„Ÿ„Ÿ /WinSleepWellService   # Project for the Windows service (to be added in the future)
-„    „¥„Ÿ„Ÿ /WinSleepWellLib       # Project for the shared library (to be added in the future)
-„    „¥„Ÿ„Ÿ /WinSleepWellSetup     # Project for the setup (to be added in the future)
-„    „¤„Ÿ„Ÿ WinSleepWell.sln       # Solution file
-„ 
-„¥„Ÿ„Ÿ /bin
-„    „¤„Ÿ„Ÿ /Release               # Released program contents
-„ 
-„¥„Ÿ„Ÿ /images                     # Images used in the project
-„ 
-„¥„Ÿ„Ÿ .gitignore
-„¥„Ÿ„Ÿ build.ps1                   # Build script
-„¥„Ÿ„Ÿ README.md                   # English README file
-„¥„Ÿ„Ÿ README-ja.md                # Japanese README file
-„¥„Ÿ„Ÿ LICENSE                     # License file
-„¤„Ÿ„Ÿ CONTRIBUTING.md             # Contribution guidelines
+â”‚
+â”œâ”€â”€ /src
+â”‚   â”œâ”€â”€ /WinSleepWell          # Project for the WPF tray application
+â”‚   â”œâ”€â”€ /WinSleepWellService   # Project for the Windows service (to be added in the future)
+â”‚   â”œâ”€â”€ /WinSleepWellLib       # Project for the shared library (to be added in the future)
+â”‚   â”œâ”€â”€ /WinSleepWellSetup     # Project for the setup (to be added in the future)
+â”‚   â””â”€â”€ WinSleepWell.sln       # Solution file
+â”‚
+â”œâ”€â”€ /bin
+â”‚   â””â”€â”€ /Release               # Released program contents
+â”‚
+â”œâ”€â”€ /images                     # Images used in the project
+â”‚
+â”œâ”€â”€ .gitignore
+â”œâ”€â”€ build.ps1                   # Build script
+â”œâ”€â”€ README.md                   # English README file
+â”œâ”€â”€ README-ja.md                # Japanese README file
+â”œâ”€â”€ LICENSE                     # License file
+â””â”€â”€ CONTRIBUTING.md             # Contribution guidelines
 ```
 
 ## How to develop
