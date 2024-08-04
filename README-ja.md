@@ -8,9 +8,9 @@
 /MyProject
 │
 ├── /src
-│   ├── /WinSleepWellApp       # WPFタスクバー常駐アプリケーションのプロジェクト
-│   ├── /WinSleepWellService   # Windowsサービスのプロジェクト
-│   ├── /WinSleepWellLib       # 共通ライブラリのプロジェクト
+│   ├── /WinSleepWell          # WPFタスクバー常駐アプリケーションのプロジェクト
+│   ├── /WinSleepWellService   # Windowsサービスのプロジェクト（将来的に追加予定）
+│   ├── /WinSleepWellLib       # 共通ライブラリのプロジェクト（将来的に追加予定）
 │   ├── /WinSleepWellSetup     # セットアッププロジェクト（将来的に追加予定）
 │   └── WinSleepWell.sln       # ソリューションファイル
 │
