@@ -208,28 +208,28 @@ namespace WinSleepWell
 
         private void EnableMouseButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = ChangeDeviceStatus(true, true, true, " manually");
+            var result = ChangeDeviceStatus(true, true, true, "BUTTON CLICKED");
             UpdateMouseButtonStates();
             MessageBox.Show(result);
         }
 
         private void DisableMouseButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = ChangeDeviceStatus(false, true, true, " manually");
+            var result = ChangeDeviceStatus(false, true, true, "BUTTON CLICKED");
             UpdateMouseButtonStates();
             MessageBox.Show(result);
         }
 
         private void EnableBiometricButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = ChangeDeviceStatus(true, false, true, " manually");
+            var result = ChangeDeviceStatus(true, false, true, "BUTTON CLICKED");
             UpdateBiometricButtonStates();
             MessageBox.Show(result);
         }
 
         private void DisableBiometricButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = ChangeDeviceStatus(false, false, true, " manually");
+            var result = ChangeDeviceStatus(false, false, true, "BUTTON CLICKED");
             UpdateBiometricButtonStates();
             MessageBox.Show(result);
         }
