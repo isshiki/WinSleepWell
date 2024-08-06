@@ -7,13 +7,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinSleepWell", "WinSleepWel
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目", "ソリューション項目", "{085731D3-F91E-41C6-91D6-4C356C542944}"
 	ProjectSection(SolutionItems) = preProject
-		../.gitignore = ../.gitignore
-		../build.ps1 = ../build.ps1
-		../README.md = ../README.md
-		../README-ja.md = ../README-ja.md
-		../LICENSE = ../LICENSE
-		../CONTRIBUTING.md = ../CONTRIBUTING.md
+		..\.gitignore = ..\.gitignore
+		..\build.ps1 = ..\build.ps1
+		..\CONTRIBUTING.md = ..\CONTRIBUTING.md
+		..\LICENSE = ..\LICENSE
+		..\README-ja.md = ..\README-ja.md
+		..\README.md = ..\README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinSleepWellLib", "WinSleepWellLib\WinSleepWellLib.csproj", "{EF5F00BF-9678-4AFF-96E5-7789099E8376}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +27,10 @@ Global
 		{C1933922-AF9B-4D12-B1C5-E563C04EFED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1933922-AF9B-4D12-B1C5-E563C04EFED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1933922-AF9B-4D12-B1C5-E563C04EFED2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF5F00BF-9678-4AFF-96E5-7789099E8376}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF5F00BF-9678-4AFF-96E5-7789099E8376}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF5F00BF-9678-4AFF-96E5-7789099E8376}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF5F00BF-9678-4AFF-96E5-7789099E8376}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

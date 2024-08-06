@@ -9,17 +9,17 @@ namespace WinSleepWell
 {
     public partial class MainWindow : Window
     {
-        private NotifyIcon _notifyIcon;
-        private DeviceManager _deviceManager;
-        private List<DeviceManager.DeviceInfo> _devices;
-        private SettingsManager _settingsManager;
-        private PowerMonitor _powerMonitor;
+        private NotifyIcon _notifyIcon = null!;
+        private DeviceManager _deviceManager = null!;
+        private List<DeviceManager.DeviceInfo> _devices = null!;
+        private SettingsManager _settingsManager = null!;
+        private PowerMonitor _powerMonitor = null!;
         private bool _isInitialized = false;
         private bool _isLoadingSettings = false;
         private bool _mouseAutoToggle;
         private bool _biometricAutoToggle;
-        private string _selectedMouseDevice;
-        private string _selectedBiometricDevice;
+        private string _selectedMouseDevice = "None";
+        private string _selectedBiometricDevice = "None";
 
         public MainWindow()
         {
@@ -68,7 +68,7 @@ namespace WinSleepWell
 
             var contextMenu = new ContextMenuStrip();
             contextMenu.Items.Add("Show", null, (s, e) => ShowMainWindow());
-            contextMenu.Items.Add("Exit", null, ExitApplication);
+            contextMenu.Items.Add("Exit", null, (s, e) => ExitApplication());
 
             _notifyIcon.ContextMenuStrip = contextMenu;
         }
@@ -80,7 +80,7 @@ namespace WinSleepWell
             Activate();
         }
 
-        private void ExitApplication(object sender, EventArgs e)
+        private void ExitApplication()
         {
             _notifyIcon.Visible = false;
             _notifyIcon.Dispose();
@@ -111,7 +111,7 @@ namespace WinSleepWell
             Hide();
         }
 
-        private void OnSuspend(object sender, PowerEventArgs e)
+        private void OnSuspend(object? sender, PowerEventArgs e)
         {
             if (_mouseAutoToggle)
             {
@@ -124,7 +124,7 @@ namespace WinSleepWell
             }
         }
 
-        private void OnResume(object sender, PowerEventArgs e)
+        private void OnResume(object? sender, PowerEventArgs e)
         {
             if (_mouseAutoToggle)
             {

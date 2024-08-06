@@ -13,10 +13,10 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/isshiki/WinSleepWell</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
     <NoWin32Manifest>true</NoWin32Manifest>
     <UseWindowsForms>True</UseWindowsForms>
-    <FileVersion>0.1.0.0</FileVersion>
+    <FileVersion>0.2.0.0</FileVersion>
     <ApplicationIcon>..\..\images\app.ico</ApplicationIcon>
     <StartupObject>WinSleepWell.App</StartupObject>
     <BaseOutputPath>..\..\bin</BaseOutputPath>
@@ -25,11 +25,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;8603;8618;8622</NoWarn>
+    <NoWarn></NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1701;1702;8603;8618;8622</NoWarn>
+    <NoWarn></NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,8 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Management" Version="8.0.0" />
+    <ProjectReference Include="..\WinSleepWellLib\WinSleepWellLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,10 +7,10 @@ namespace WinSleepWell
     {
         public class DeviceInfo
         {
-            public string DeviceId { get; set; }
-            public string DeviceName { get; set; }
-            public string Status { get; set; }
-            public string PnpClass { get; set; }
+            public string DeviceId { get; set; } = string.Empty;
+            public string DeviceName { get; set; } = string.Empty;
+            public string Status { get; set; } = string.Empty;
+            public string PnpClass { get; set; } = string.Empty;
         }
 
         public List<DeviceInfo> GetDevices()

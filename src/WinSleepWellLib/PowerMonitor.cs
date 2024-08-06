@@ -15,8 +15,8 @@ namespace WinSleepWell
 
     public class PowerMonitor
     {
-        public event EventHandler<PowerEventArgs> Suspend;
-        public event EventHandler<PowerEventArgs> Resume;
+        public event EventHandler<PowerEventArgs>? Suspend;
+        public event EventHandler<PowerEventArgs>? Resume;
 
         private const int DEVICE_NOTIFY_CALLBACK = 2;
         

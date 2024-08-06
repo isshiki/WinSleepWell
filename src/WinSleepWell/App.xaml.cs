@@ -10,7 +10,7 @@ namespace WinSleepWell
 {
     public partial class App : Application
     {
-        public MainWindow mainWindow;
+        public MainWindow? mainWindow;
         
         protected override void OnStartup(StartupEventArgs e)
         {
