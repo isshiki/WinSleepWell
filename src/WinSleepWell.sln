@@ -15,7 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinSleepWellLib", "WinSleepWellLib\WinSleepWellLib.csproj", "{EF5F00BF-9678-4AFF-96E5-7789099E8376}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinSleepWellLib", "WinSleepWellLib\WinSleepWellLib.csproj", "{EF5F00BF-9678-4AFF-96E5-7789099E8376}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinSleepWellService", "WinSleepWellService\WinSleepWellService.csproj", "{2E158904-67C1-4946-BF90-E1902AA77D7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,10 @@ Global
 		{EF5F00BF-9678-4AFF-96E5-7789099E8376}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF5F00BF-9678-4AFF-96E5-7789099E8376}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF5F00BF-9678-4AFF-96E5-7789099E8376}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E158904-67C1-4946-BF90-E1902AA77D7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E158904-67C1-4946-BF90-E1902AA77D7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E158904-67C1-4946-BF90-E1902AA77D7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E158904-67C1-4946-BF90-E1902AA77D7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

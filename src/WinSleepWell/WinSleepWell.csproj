@@ -13,10 +13,10 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/isshiki/WinSleepWell</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <AssemblyVersion>0.2.0.0</AssemblyVersion>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
     <NoWin32Manifest>true</NoWin32Manifest>
     <UseWindowsForms>True</UseWindowsForms>
-    <FileVersion>0.2.0.0</FileVersion>
+    <FileVersion>0.3.0.0</FileVersion>
     <ApplicationIcon>..\..\images\app.ico</ApplicationIcon>
     <StartupObject>WinSleepWell.App</StartupObject>
     <BaseOutputPath>..\..\bin</BaseOutputPath>

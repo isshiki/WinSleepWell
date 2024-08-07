@@ -19,8 +19,7 @@ namespace WinSleepWell
             if (File.Exists(_settingsFilePath))
             {
                 var json = File.ReadAllText(_settingsFilePath);
-                var settings = JsonConvert.DeserializeObject<Settings>(json);
-                return settings ?? new Settings(); // nullの場合、新しいSettingsオブジェクトを返す
+                return JsonConvert.DeserializeObject<Settings>(json) ?? new Settings();
             }
             return new Settings();
         }

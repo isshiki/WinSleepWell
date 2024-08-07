@@ -9,8 +9,8 @@ This project includes a service that detects when Windows wakes from sleep and p
 │
 ├── /src
 │   ├── /WinSleepWell          # Project for the WPF tray application
-│   ├── /WinSleepWellService   # Project for the Windows service (to be added in the future)
-│   ├── /WinSleepWellLib       # Project for the shared library (to be added in the future)
+│   ├── /WinSleepWellService   # Project for the Windows service
+│   ├── /WinSleepWellLib       # Project for the shared library
 │   ├── /WinSleepWellSetup     # Project for the setup (to be added in the future)
 │   └── WinSleepWell.sln       # Solution file
 │
