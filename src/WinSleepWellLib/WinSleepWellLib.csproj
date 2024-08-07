@@ -9,6 +9,7 @@
     <BaseOutputPath>..\..\bin</BaseOutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <RootNamespace>WinSleepWell</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
