@@ -98,14 +98,14 @@ namespace WinSleepWell
                         EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
 #endif
                         // System is suspending operation
-                        Suspend?.Invoke(this, new PowerEventArgs(" on PBT_APMSUSPEND"));
+                        Suspend?.Invoke(this, new PowerEventArgs(""));
                         IsSuspended = true;
                         return 0;
                     case PBT_APMRESUMEAUTOMATIC:
 #if DEBUG
                         EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
 #endif                    // System is resuming automatically from a low-power state
-                        Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMEAUTOMATIC"));
+                        Resume?.Invoke(this, new PowerEventArgs(""));
                         IsSuspended = false;
                         return 0;
                     case PBT_APMRESUMECRITICAL:
@@ -113,7 +113,7 @@ namespace WinSleepWell
                         EventLogger.LogEvent("PBT_APMRESUMECRITICAL", EventLogEntryType.Information);
 #endif
                         // System is resuming after a critical suspension
-                        Resume?.Invoke(this, new PowerEventArgs(" on PBT_APMRESUMECRITICAL"));
+                        Resume?.Invoke(this, new PowerEventArgs(" after a critical suspension"));
                         IsSuspended = false;
                         return 0;
                     case PBT_APMRESUMESUSPEND:
