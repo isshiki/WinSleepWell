@@ -1,0 +1,55 @@
+WinSleepWell - ユーザーガイド
+
+WinSleepWellをご利用いただきありがとうございます。このプロジェクトには、Windowsがスリープから復帰した際に再度スリープ状態にするサービスと、マウスの動きによるスリープからの意図しない復帰を最小限に抑えるタスクバー常駐アプリケーションが含まれています。
+
+## セットアップ手順
+
+1. **ダウンロード**:
+    - [リリース](https://github.com/isshiki/WinSleepWell/releases)ページから`WinSleepWell` ZIPファイルをダウンロードしてください。
+    - **セキュリティ許可の確認**:
+        - ダウンロードしたZIPファイルを右クリックし、「プロパティ」を選択します。
+        - プロパティウィンドウの「全般」タブを開き、画面下部にある「セキュリティ」の項目で「許可する」にチェックが入っているか確認します。
+        - 「許可する」のオプションが表示されている場合は、チェックを入れてから「OK」をクリックします。
+
+2. **配置**:
+    - ZIPファイルを解凍して`WinSleepWell`フォルダーを任意のディレクトリに配置してください。
+
+3. **PowerShellの実行ポリシーの設定** (必要な場合):
+    - 管理者として **PowerShell** を開きます。
+    - 次のコマンドを実行して、現在の実行ポリシーを確認し保存します:
+      ```powershell
+      $OriginalPolicy = Get-ExecutionPolicy
+      Write-Host "現在の実行ポリシー: $OriginalPolicy"
+      ```
+    - 実行ポリシーが `Unrestricted` 以外である場合は、次のコマンドで設定を変更します:
+      ```powershell
+      Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+      ```
+      **注意:** 実行ポリシーを `Unrestricted` に設定すると、すべてのスクリプトが実行可能になりますが、インターネットからダウンロードされたスクリプトを実行する際に警告が表示される場合があります。実行ポリシーの変更には管理者権限が必要です。実行ポリシーを変更することで生じる問題について、プロジェクトの作成者は一切の責任を負いません。
+
+4. **セットアップの実行**:
+    - 同じPowerShellウィンドウで、`WinSleepWell`フォルダーに移動します。
+    - 次のコマンドを入力してセットアップを実行します:
+      ```powershell
+      .\setup.ps1 -i
+      ```
+
+5. **アンインストール**:
+    - サービスとタスクをアンインストールするには、次のコマンドを実行します:
+      ```powershell
+      .\setup.ps1 -u
+      ```
+
+6. **実行ポリシーのリセット (変更した場合)**:
+    - セットアップまたはアンインストールが完了した後、以前に実行ポリシーを変更した場合は、次のコマンドを実行して元の設定に戻すことをお勧めします:
+      ```powershell
+      Set-ExecutionPolicy $OriginalPolicy -Scope CurrentUser
+      ```
+
+## セキュリティに関する注意事項
+PowerShellの実行ポリシーを変更すると、システムのセキュリティに影響を与える可能性があります。実行ポリシーを変更する前に、その影響を十分に理解し、セットアップが完了した後は元の設定に戻すことをお勧めします。実行ポリシーの変更によって生じるいかなる問題やセキュリティリスクについても、プロジェクトの作成者は一切の責任を負いません。
+
+## 追加情報
+
+- **バグ報告や要望**: [https://github.com/isshiki/WinSleepWell/issues](https://github.com/isshiki/WinSleepWell/issues)
+- **ソースコード**: [https://github.com/isshiki/WinSleepWell](https://github.com/isshiki/WinSleepWell)

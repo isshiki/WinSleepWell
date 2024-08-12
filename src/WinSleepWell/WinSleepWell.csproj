@@ -19,17 +19,16 @@
     <FileVersion>0.3.0.0</FileVersion>
     <ApplicationIcon>..\..\images\app.ico</ApplicationIcon>
     <StartupObject>WinSleepWell.App</StartupObject>
-    <BaseOutputPath>..\..\bin</BaseOutputPath>
+    <RootNamespace>WinSleepWell</RootNamespace>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn></NoWarn>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn></NoWarn>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <OutputPath>..\..\bin\Release\App\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

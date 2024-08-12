@@ -28,7 +28,7 @@ namespace WinSleepWell
             try
             {
                 _deviceManager = new DeviceManager();
-                _settingsManager = new SettingsManager();
+                _settingsManager = new SettingsManager(false);
                 _devices = _deviceManager.GetDevices();
                 LoadDevicesInfo();
                 LoadSettings();
@@ -73,7 +73,7 @@ namespace WinSleepWell
             _notifyIcon.ContextMenuStrip = contextMenu;
         }
 
-        private void ShowMainWindow()
+        public void ShowMainWindow()
         {
             Show();
             WindowState = WindowState.Normal;

@@ -16,16 +16,8 @@ namespace WinSleepWell
         {
             base.OnStartup(e);
 
-            if (!IsAdministrator())
+            if (PrivilegeManager.EnsureAdminPrivileges(false, "WinSleepWell application") == false)
             {
-                if (Environment.UserInteractive)
-                {
-                    MessageBox.Show("This application must be run as an administrator.", "Insufficient Privileges", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-                    EventLogger.LogEvent("[Insufficient Privileges] This application must be run as an administrator.", EventLogEntryType.Error);
-                }
                 Application.Current.Shutdown();
                 return;
             }
@@ -34,13 +26,11 @@ namespace WinSleepWell
             DispatcherUnhandledException += App_DispatcherUnhandledException;
 
             mainWindow = new MainWindow();
-        }
 
-        private bool IsAdministrator()
-        {
-            var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            if (e.Args.Contains("--show-settings"))
+            {
+                mainWindow.ShowMainWindow();
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)

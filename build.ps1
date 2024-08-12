@@ -5,28 +5,33 @@ Set-Location -Path (Split-Path -Path $MyInvocation.MyCommand.Definition -Parent)
 $srcPath = "src"
 $binPath = "bin"
 
-# Clean the bin directory
-if (Test-Path $binPath) {
-    Remove-Item -Recurse -Force $binPath
+# If the bin/Release directory exists, delete its subdirectories but keep the root files.
+if (Test-Path "$binPath/Release") {
+    Get-ChildItem "$binPath/Release" -Recurse -Directory | Remove-Item -Recurse -Force
 }
-New-Item -ItemType Directory -Path $binPath
 
-# Create Debug and Release directories
-$debugPath = "$binPath/Debug"
-$releasePath = "$binPath/Release"
+# Create Release output directories for App and Service within the bin/Release folder.
+$binReleaseAppPath = "$binPath/Release/App"
+$binReleaseServicePath = "$binPath/Release/Service"
 
-New-Item -ItemType Directory -Path $debugPath
-New-Item -ItemType Directory -Path $releasePath
+New-Item -ItemType Directory -Path $binReleaseAppPath
+New-Item -ItemType Directory -Path $binReleaseServicePath
 
-# Build Debug and Release configurations
-Write-Host "Building Debug configuration..."
-dotnet build "$srcPath/WinSleepWellLib" -c Debug -o $debugPath
-dotnet build "$srcPath/WinSleepWell" -c Debug -o $debugPath
-dotnet build "$srcPath/WinSleepWellService" -c Debug -o $debugPath
+# Build the class library, WPF application, and service in Debug configuration.
+Write-Host "Building Debug configuration for class library, WPF application, and service..."
+dotnet build "$srcPath/WinSleepWellLib" -c Debug
+dotnet build "$srcPath/WinSleepWell" -c Debug
+dotnet build "$srcPath/WinSleepWellService" -c Debug
 
-Write-Host "Building Release configuration..."
-dotnet build "$srcPath/WinSleepWellLib" -c Release -o $releasePath
-dotnet build "$srcPath/WinSleepWell" -c Release -o $releasePath
-dotnet build "$srcPath/WinSleepWellService" -c Release -o $releasePath
+# Build the class library, WPF application, and service in Release configuration.
+Write-Host "Building Release configuration for class library, WPF application, and service..."
+dotnet build "$srcPath/WinSleepWellLib" -c Release
+dotnet build "$srcPath/WinSleepWell" -c Release -o $binReleaseAppPath
+dotnet build "$srcPath/WinSleepWellService" -c Release
 
-Write-Host "Build completed successfully."
+# Build and publish the Windows service in Release configuration to the Service folder, using framework-dependent deployment
+Write-Host "Publishing WinSleepWellService in Release configuration..."
+dotnet publish "$srcPath/WinSleepWellService" -c Release --output $binReleaseServicePath --no-self-contained
+
+# Display a completion message.
+Write-Host "Build and publish completed successfully."

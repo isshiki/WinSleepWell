@@ -1,0 +1,55 @@
+WinSleepWell - User Guide
+
+Thank you for using WinSleepWell. This project includes a service that detects when Windows wakes from sleep and puts it back to sleep, and a taskbar-resident application that minimizes wake-ups from sleep caused by mouse movement as much as possible.
+
+## Setup Instructions
+
+1. **Download**:
+    - Download the `WinSleepWell` ZIP file from the [releases](https://github.com/isshiki/WinSleepWell/releases) page.
+    - **Check Security Permissions**:
+        - Right-click the downloaded ZIP file and select "Properties."
+        - In the Properties window, go to the "General" tab and check for a "Security" section at the bottom.
+        - If there is an option to "Unblock," check the box next to it and click "OK."
+
+2. **Place**:
+    - Extract the ZIP file and place the `WinSleepWell` folder in any directory of your choice.
+
+3. **Configure PowerShell Execution Policy** (if needed):
+    - Open **PowerShell** with administrator privileges.
+    - Check and save the current execution policy by running:
+      ```powershell
+      $OriginalPolicy = Get-ExecutionPolicy
+      Write-Host "Current Execution Policy: $OriginalPolicy"
+      ```
+    - If the policy is set to anything other than `Unrestricted`, change it by running:
+      ```powershell
+      Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+      ```
+      **Note:** Setting the execution policy to `Unrestricted` allows all scripts to run, but you may receive warnings when running scripts downloaded from the internet. Changing the execution policy requires administrator privileges. The author of this project assumes no liability for any issues that may arise from modifying the execution policy.
+
+4. **Run Setup**:
+    - In the same PowerShell window, navigate to the `WinSleepWell` folder.
+    - Run `setup.ps1` by typing:
+      ```powershell
+      .\setup.ps1 -i
+      ```
+
+5. **Uninstall**:
+    - To uninstall the service and task, run:
+      ```powershell
+      .\setup.ps1 -u
+      ```
+
+6. **Revert Execution Policy (if changed)**:
+    - After completing the setup or uninstallation, if you changed the execution policy earlier, it's recommended to revert it to the original setting by running:
+      ```powershell
+      Set-ExecutionPolicy $OriginalPolicy -Scope CurrentUser
+      ```
+
+## Security Notice
+Modifying the PowerShell execution policy can affect the security of your system. Ensure that you understand the implications of changing the execution policy, and revert it back to its original setting after completing the setup. The author of this project assumes no liability for any issues or security risks that may arise from changing the execution policy.
+
+## Additional Information
+
+- **Bug Reports and Requests**: [https://github.com/isshiki/WinSleepWell/issues](https://github.com/isshiki/WinSleepWell/issues)
+- **Source Code**: [https://github.com/isshiki/WinSleepWell](https://github.com/isshiki/WinSleepWell)
