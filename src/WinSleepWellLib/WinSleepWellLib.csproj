@@ -6,11 +6,16 @@
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>0.3.0.0</AssemblyVersion>
-    <FileVersion>0.3.0.0</FileVersion>
+    <AssemblyVersion>0.4.0.0</AssemblyVersion>
+    <FileVersion>0.4.0.0</FileVersion>
     <RootNamespace>WinSleepWell</RootNamespace>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <Copyright>Masahiko Isshiki.</Copyright>
+    <PackageProjectUrl>https://github.com/isshiki/WinSleepWell</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/isshiki/WinSleepWell</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>A shared library for WinSleepWell application and WinSleepWell Service.</Description>
   </PropertyGroup>
 
   <ItemGroup>
