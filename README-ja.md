@@ -18,7 +18,7 @@
 │       ├── /App               # Windowsアプリケーション
 │       ├── /Service           # Windowsサービス
 │       ├── settings.json      # 共通の設定ファイル
-│       ├── setup.ps1          # WinSleepWell用のセットアップスクリプト（プロジェクトルートにあるスクリプトと同じものです）
+│       ├── setup.ps1          # ユーザー用のセットアップスクリプト（プロジェクトルートにあるスクリプトと同じものです）
 │       ├── UserGuide.txt      # 英語のユーザーガイド
 │       └── UserGuide-ja.txt   # 日本語のユーザーガイド
 │
@@ -26,7 +26,7 @@
 │
 ├── .gitignore
 ├── build.ps1                   # ビルドスクリプト
-├── setup.ps1                   # サービスおよびタスクのインストールとアンインストール用セットアップスクリプト
+├── setup.ps1                   # 開発者用のセットアップスクリプトで、サービスやタスクをインストールでき、アンインストールできる
 ├── README.md                   # 英語のREADMEファイル
 ├── README-ja.md                # 日本語のREADMEファイル
 ├── LICENSE                     # ライセンスファイル

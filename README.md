@@ -18,7 +18,7 @@ This project includes a service that detects when Windows wakes from sleep and p
 │       ├── /App               # Windows application
 │       ├── /Service           # Windows service
 │       ├── settings.json      # Shared configuration file
-│       ├── setup.ps1          # Setup script for WinSleepWell (Same as the script in the project root)
+│       ├── setup.ps1          # Setup script for Users (Same as the script in the project root)
 │       ├── UserGuide.txt      # English user guide
 │       └── UserGuide-ja.txt   # Japanese user guide
 │
@@ -26,7 +26,7 @@ This project includes a service that detects when Windows wakes from sleep and p
 │
 ├── .gitignore
 ├── build.ps1                   # Build script
-├── setup.ps1                   # Setup script for installing and uninstalling the service and task
+├── setup.ps1                   # Setup script for Developers to install and uninstall the service and task
 ├── README.md                   # English README file
 ├── README-ja.md                # Japanese README file
 ├── LICENSE                     # License file
