@@ -1,4 +1,4 @@
-WinSleepWell - User Guide
+# WinSleepWell - User Guide
 
 Thank you for using WinSleepWell. This project includes a service that detects when Windows wakes from sleep and puts it back to sleep, and a taskbar-resident application that minimizes wake-ups from sleep caused by mouse movement as much as possible.
 
@@ -52,7 +52,7 @@ Modifying the PowerShell execution policy can affect the security of your system
 ## How to use  
 After the setup is complete, the settings window will automatically appear. If it does not, double-click the icon that resides in the taskbar. Once the settings are completed, the service will ensure that Windows continues to sleep properly based on those settings.
 
-**Note:** This application and service are specifically designed for the [ONEXPLAYER X1 AMD Edition](https://onexplayerstore.com/products/onexplayer-x1-amd-ryzen%E2%84%A2-7-8840u-10-95-3-in-1-gaming-handheld-pre-sale?variant=48759855481126). While it may work on other devices, proper functionality is not guaranteed. Please be aware that we accept no liability for any damage or accidents that may occur from using this application.
+**Note:** This application and service are specifically designed for the [ONEXPLAYER X1 AMD Edition](https://onexplayerstore.com/collections/x1/products/onexplayer-x1-amd-ryzen%E2%84%A2-7-8840u-10-95-3-in-1-gaming-handheld-pre-sale). While it may work on other devices, proper functionality is not guaranteed. Please be aware that we accept no liability for any damage or accidents that may occur from using this application.
 
 ## Additional Information
 
