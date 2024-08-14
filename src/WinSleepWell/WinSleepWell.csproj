@@ -62,9 +62,7 @@
   <ItemGroup>
     <Page Update="Themes\DarkTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Update="Themes\LightTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Page>
   </ItemGroup>
 

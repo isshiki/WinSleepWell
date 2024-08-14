@@ -26,6 +26,7 @@ namespace WinSleepWell
         public MainWindow()
         {
             InitializeComponent();
+            ApplyTheme();
             SetWindowTitleWithVersion();
             try
             {
@@ -43,6 +44,17 @@ namespace WinSleepWell
                 EventLogger.LogEvent("Failed to initialize MainWindow: " + ex.Message, EventLogEntryType.Error);
                 MessageBox.Show("Initialization failed. Please check the logs for more details.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
+            }
+        }
+
+        private void ApplyTheme()
+        {
+            if (SystemThemeHelper.IsDarkMode())
+            {
+                Resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("Themes/DarkTheme.xaml", UriKind.Relative)
+                });
             }
         }
 
