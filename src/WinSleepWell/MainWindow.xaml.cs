@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Threading;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
@@ -15,6 +16,7 @@ namespace WinSleepWell
         private List<DeviceManager.DeviceInfo> _devices = null!;
         private SettingsManager _settingsManager = null!;
         private bool _isInitialized = false;
+        private bool _isFirstTimeShown = true;
         private bool _isLoadingSettings = false;
         private bool _mouseAutoToggle;
         private bool _biometricAutoToggle;
@@ -91,8 +93,29 @@ namespace WinSleepWell
         public void ShowMainWindow()
         {
             Show();
-            WindowState = WindowState.Normal;
-            Activate();
+            if (_isFirstTimeShown)
+            {
+                _isFirstTimeShown = false;
+
+                if (SystemThemeHelper.IsDarkMode())
+                {
+                    SystemThemeHelper.SetDarkMode(this);
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        Hide();
+                        Show();
+                        Activate();
+                    });
+                }
+                else
+                {
+                    Activate();
+                }
+            }
+            else
+            {
+                Activate();
+            }
         }
 
         private void ExitApplication()
