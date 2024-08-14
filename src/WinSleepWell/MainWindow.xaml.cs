@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.Diagnostics;
+using System.Drawing;
 using System.Reflection;
 using System.Windows;
 using Application = System.Windows.Application;
@@ -13,7 +14,6 @@ namespace WinSleepWell
         private DeviceManager _deviceManager = null!;
         private List<DeviceManager.DeviceInfo> _devices = null!;
         private SettingsManager _settingsManager = null!;
-        private PowerMonitor _powerMonitor = null!;
         private bool _isInitialized = false;
         private bool _isLoadingSettings = false;
         private bool _mouseAutoToggle;
@@ -33,9 +33,6 @@ namespace WinSleepWell
                 LoadDevicesInfo();
                 LoadSettings();
                 InitializeNotifyIcon();
-                _powerMonitor = new PowerMonitor();
-                _powerMonitor.Suspend += OnSuspend;
-                _powerMonitor.Resume += OnResume;
                 _isInitialized = true;
                 Hide();
             }
@@ -65,12 +62,30 @@ namespace WinSleepWell
             //EventLogger.LogEvent("Added notify-icon", EventLogEntryType.Information);
 
             _notifyIcon.DoubleClick += (s, e) => ShowMainWindow();
+            _notifyIcon.ContextMenuStrip = CreateContextMenu();
+        }
 
-            var contextMenu = new ContextMenuStrip();
-            contextMenu.Items.Add("Show", null, (s, e) => ShowMainWindow());
-            contextMenu.Items.Add("Exit", null, (s, e) => ExitApplication());
+        private ContextMenuStrip? CreateContextMenu()
+        {
+            bool isDarkMode = SystemThemeHelper.IsDarkMode();
 
-            _notifyIcon.ContextMenuStrip = contextMenu;
+            var contextMenu = new ContextMenuStrip
+            {
+                Renderer = new ContextMenuRenderer(isDarkMode)
+            };
+
+            contextMenu.Items.Add(new ToolStripMenuItem("Show", null, (s, e) => ShowMainWindow())
+            {
+                Padding = new Padding(0, 10, 0, 10)
+
+            });
+
+            contextMenu.Items.Add(new ToolStripMenuItem("Exit", null, (s, e) => ExitApplication())
+            {
+                Padding = new Padding(0, 10, 0, 10)
+            });
+
+            return contextMenu;
         }
 
         public void ShowMainWindow()
@@ -84,7 +99,8 @@ namespace WinSleepWell
         {
             _notifyIcon.Visible = false;
             _notifyIcon.Dispose();
-            _powerMonitor.Dispose();
+            _settingsManager.Dispose();
+            _deviceManager.Dispose();
             Application.Current.Shutdown();
         }
 
@@ -109,32 +125,6 @@ namespace WinSleepWell
             e.Cancel = true;
             SaveSettings();
             Hide();
-        }
-
-        private void OnSuspend(object? sender, PowerEventArgs e)
-        {
-            if (_mouseAutoToggle)
-            {
-                ChangeDeviceStatus(false, true, false, e.Message);
-            }
-
-            if (_biometricAutoToggle)
-            {
-                ChangeDeviceStatus(false, false, false, e.Message);
-            }
-        }
-
-        private void OnResume(object? sender, PowerEventArgs e)
-        {
-            if (_mouseAutoToggle)
-            {
-                ChangeDeviceStatus(true, true, false, e.Message);
-            }
-
-            if (_biometricAutoToggle)
-            {
-                ChangeDeviceStatus(true, false, false, e.Message);
-            }
         }
 
         private void LoadDevicesInfo()
@@ -257,15 +247,13 @@ namespace WinSleepWell
 
             if (selectedItem == "None" || string.IsNullOrEmpty(selectedItem))
             {
-                MessageBox.Show("Please select a device.");
-                return String.Empty;
+                return "Please select a device.";
             }
 
             var deviceId = selectedItem?.Split(' ')[0] ?? "";
             if (string.IsNullOrEmpty(deviceId))
             {
-                MessageBox.Show("Please select a device.");
-                return String.Empty;
+                return "Please select a device.";
             }
 
             var result = _deviceManager.ChangeDeviceStatus(deviceId, enable, canUseGUI, message);
