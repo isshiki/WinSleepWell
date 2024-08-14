@@ -49,7 +49,14 @@ WinSleepWell‚ð‚²—˜—p‚¢‚½‚¾‚«‚ ‚è‚ª‚Æ‚¤‚²‚´‚¢‚Ü‚·B‚±‚ÌƒvƒƒWƒFƒNƒg‚É‚ÍAWindows‚
 ## ƒZƒLƒ…ƒŠƒeƒB‚ÉŠÖ‚·‚é’ˆÓŽ–€
 PowerShell‚ÌŽÀsƒ|ƒŠƒV[‚ð•ÏX‚·‚é‚ÆAƒVƒXƒeƒ€‚ÌƒZƒLƒ…ƒŠƒeƒB‚É‰e‹¿‚ð—^‚¦‚é‰Â”\«‚ª‚ ‚è‚Ü‚·BŽÀsƒ|ƒŠƒV[‚ð•ÏX‚·‚é‘O‚ÉA‚»‚Ì‰e‹¿‚ð\•ª‚É—‰ð‚µAƒZƒbƒgƒAƒbƒv‚ªŠ®—¹‚µ‚½Œã‚ÍŒ³‚ÌÝ’è‚É–ß‚·‚±‚Æ‚ð‚¨Š©‚ß‚µ‚Ü‚·BŽÀsƒ|ƒŠƒV[‚Ì•ÏX‚É‚æ‚Á‚Ä¶‚¶‚é‚¢‚©‚È‚é–â‘è‚âƒZƒLƒ…ƒŠƒeƒBƒŠƒXƒN‚É‚Â‚¢‚Ä‚àAƒvƒƒWƒFƒNƒg‚Ìì¬ŽÒ‚ÍˆêØ‚ÌÓ”C‚ð•‰‚¢‚Ü‚¹‚ñB
 
+## Žg—p•û–@
+ƒZƒbƒgƒAƒbƒv‚ªŠ®—¹‚·‚é‚ÆAÝ’è‰æ–Ê‚ªŽ©“®“I‚É•\Ž¦‚³‚ê‚Ü‚·B•\Ž¦‚³‚ê‚È‚¢ê‡‚ÍAƒ^ƒXƒNƒo[‚Éí’“‚µ‚Ä‚¢‚éƒAƒCƒRƒ“‚ðƒ_ƒuƒ‹ƒNƒŠƒbƒN‚µ‚Ä‚­‚¾‚³‚¢BÝ’è‚ªŠ®—¹‚·‚é‚ÆA‚»‚ÌÝ’è“à—e‚ÉŠî‚Ã‚¢‚ÄAƒT[ƒrƒX‚ªWindows‚ÌƒXƒŠ[ƒv‚ð“KØ‚ÉˆÛŽ‚·‚é‚æ‚¤‚É‚È‚è‚Ü‚·B
+
+**’ˆÓ:** –{ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚¨‚æ‚ÑƒT[ƒrƒX‚ÍA[ONEXPLAYER X1 AMD Edition](https://onexplayerstore.com/products/onexplayer-x1-amd-ryzen%E2%84%A2-7-8840u-10-95-3-in-1-gaming-handheld-pre-sale?variant=48759855481126)—p‚É“Á•Ê‚ÉÝŒv‚³‚ê‚Ä‚¢‚Ü‚·B‘¼‚ÌƒfƒoƒCƒX‚Å‚à“®ì‚·‚é‰Â”\«‚ª‚ ‚è‚Ü‚·‚ªA³í‚È“®ì‚ð•ÛØ‚·‚é‚à‚Ì‚Å‚Í‚ ‚è‚Ü‚¹‚ñB‚Ü‚½A–{ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌŽg—p‚É‚æ‚è¶‚¶‚½ŒÌá‚âŽ–ŒÌ‚ÉŠÖ‚µ‚ÄA“–•û‚ÍˆêØ‚ÌÓ”C‚ð•‰‚¢‚©‚Ë‚Ü‚·‚Ì‚Å‚²—¹³‚­‚¾‚³‚¢B
+
 ## ’Ç‰Áî•ñ
 
-- **ƒoƒO•ñ‚â—v–]**: [https://github.com/isshiki/WinSleepWell/issues](https://github.com/isshiki/WinSleepWell/issues)
+- **Issuesi‰Û‘èj**: [https://github.com/isshiki/WinSleepWell/issues](https://github.com/isshiki/WinSleepWell/issues)
 - **ƒ\[ƒXƒR[ƒh**: [https://github.com/isshiki/WinSleepWell](https://github.com/isshiki/WinSleepWell)
+
+ƒoƒO‚Ì•ñ‚â‹@”\—v–]‚ª‚ ‚éê‡‚ÍAã‹L‚ÌIssues‚©‚ç•ñ‚Å‚«‚Ü‚·B‚½‚¾‚µA–{—ˆ‚Ì‹@”\‚ÉŠÜ‚Ü‚ê‚È‚¢“Á•Ê‚Èƒ†[ƒXƒP[ƒX‚É‘Î‚·‚éƒTƒ|[ƒg‚ÍˆêØs‚í‚È‚¢—\’è‚Å‚·BŽ©•ª‚Ì‚½‚ß‚Éì¬‚µ‚½‚à‚Ì‚ðAŽg‚¢‚½‚¢lŒü‚¯‚ÉŒöŠJ‚µ‚½‚¾‚¯‚¾‚©‚ç‚Å‚·B‚ ‚µ‚©‚ç‚¸‚²—¹³‚­‚¾‚³‚¢B

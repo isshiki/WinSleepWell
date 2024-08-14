@@ -15,8 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 		..\setup.ps1 = ..\setup.ps1
 		..\bin\Release\setup.ps1 = ..\bin\Release\setup.ps1
-		..\bin\Release\UserGuide-ja.txt = ..\bin\Release\UserGuide-ja.txt
-		..\bin\Release\UserGuide.txt = ..\bin\Release\UserGuide.txt
+		..\bin\Release\UserGuide-ja.md = ..\bin\Release\UserGuide-ja.md
+		..\bin\Release\UserGuide.md = ..\bin\Release\UserGuide.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinSleepWellLib", "WinSleepWellLib\WinSleepWellLib.csproj", "{EF5F00BF-9678-4AFF-96E5-7789099E8376}"

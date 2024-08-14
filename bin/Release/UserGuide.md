@@ -49,7 +49,14 @@ Thank you for using WinSleepWell. This project includes a service that detects w
 ## Security Notice
 Modifying the PowerShell execution policy can affect the security of your system. Ensure that you understand the implications of changing the execution policy, and revert it back to its original setting after completing the setup. The author of this project assumes no liability for any issues or security risks that may arise from changing the execution policy.
 
+## How to use  
+After the setup is complete, the settings window will automatically appear. If it does not, double-click the icon that resides in the taskbar. Once the settings are completed, the service will ensure that Windows continues to sleep properly based on those settings.
+
+**Note:** This application and service are specifically designed for the [ONEXPLAYER X1 AMD Edition](https://onexplayerstore.com/products/onexplayer-x1-amd-ryzen%E2%84%A2-7-8840u-10-95-3-in-1-gaming-handheld-pre-sale?variant=48759855481126). While it may work on other devices, proper functionality is not guaranteed. Please be aware that we accept no liability for any damage or accidents that may occur from using this application.
+
 ## Additional Information
 
-- **Bug Reports and Requests**: [https://github.com/isshiki/WinSleepWell/issues](https://github.com/isshiki/WinSleepWell/issues)
+- **Issues**: [https://github.com/isshiki/WinSleepWell/issues](https://github.com/isshiki/WinSleepWell/issues)
 - **Source Code**: [https://github.com/isshiki/WinSleepWell](https://github.com/isshiki/WinSleepWell)
+
+If you encounter any bugs or have feature requests, you can report them through the Issues link above. However, please note that support for special use cases outside of the primary functionality is not planned. This application was created for personal use and is shared for those who might find it useful. Thank you for your understanding.

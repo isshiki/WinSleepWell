@@ -33,12 +33,6 @@ This project includes a service that detects when Windows wakes from sleep and p
 └── CONTRIBUTING.md             # Contribution guidelines
 ```
 
-## How to setup  
-This section will be added in the future.
-
-## How to use  
-After the setup is complete, the settings window will automatically appear. If it does not, double-click the icon that resides in the taskbar. Once the settings are completed, the service will ensure that Windows continues to sleep properly based on those settings.
-
 ## Prerequisites for running PowerShell scripts
 Before running the `build.ps1` and `setup.ps1` scripts, ensure that your execution policy is configured correctly:
 
