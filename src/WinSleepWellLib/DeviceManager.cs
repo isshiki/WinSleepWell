@@ -5,6 +5,16 @@ namespace WinSleepWell
 {
     public class DeviceManager
     {
+        public DeviceManager()
+        {
+            // Do nothing
+        }
+
+        public void Dispose()
+        {
+            // Do nothing
+        }
+
         public class DeviceInfo
         {
             public string DeviceId { get; set; } = string.Empty;

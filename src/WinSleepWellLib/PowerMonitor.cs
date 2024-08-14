@@ -104,7 +104,8 @@ namespace WinSleepWell
                     case PBT_APMRESUMEAUTOMATIC:
 #if DEBUG
                         EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
-#endif                    // System is resuming automatically from a low-power state
+#endif                  
+                        // System is resuming automatically from a low-power state
                         Resume?.Invoke(this, new PowerEventArgs(""));
                         IsSuspended = false;
                         return 0;

@@ -36,6 +36,11 @@ namespace WinSleepWell
             }
         }
 
+        public void Dispose()
+        {
+            // Do nothing
+        }
+
         public void SaveSettings(Settings settings)
         {
             try

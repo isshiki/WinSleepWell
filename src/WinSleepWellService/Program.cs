@@ -17,7 +17,6 @@ builder.Services.AddWindowsService(options =>
 // LoggerProviderOptions.RegisterProviderOptions<EventLogSettings, EventLogLoggerProvider>(builder.Services);
 
 // Registering services for dependency injection
-builder.Services.AddSingleton<SleepKeeperService>();  // Adds SleepKeeperService as a singleton, shared across the entire application.
 builder.Services.AddHostedService<WindowsBackgroundService>();  // Registers WindowsBackgroundService as a hosted service to run in the background.
 
 // Building the host that manages the application's lifecycle
