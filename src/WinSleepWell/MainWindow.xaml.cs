@@ -26,7 +26,7 @@ namespace WinSleepWell
         public MainWindow()
         {
             InitializeComponent();
-            ApplyTheme();
+            //ApplyTheme();
             SetWindowTitleWithVersion();
             try
             {

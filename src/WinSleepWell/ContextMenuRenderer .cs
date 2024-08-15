@@ -33,5 +33,4 @@ namespace WinSleepWell
             base.OnRenderItemText(e);
         }
     }
-
 }
