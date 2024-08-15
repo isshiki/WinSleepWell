@@ -9,6 +9,27 @@ namespace WinSleepWell
 {
     public static class PrivilegeManager
     {
+        public static bool IsAdministrator(string programName)
+        {
+            try
+            {
+                var identity = WindowsIdentity.GetCurrent();
+                if (identity == null)
+                {
+                    EventLogger.LogEvent($"[{programName}] Failed to get the current Windows identity.", EventLogEntryType.Error);
+                    return false;
+                }
+
+                var principal = new WindowsPrincipal(identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+            catch (Exception ex)
+            {
+                EventLogger.LogEvent($"[{programName}] An error occurred while checking for administrator privileges: {ex.Message}", EventLogEntryType.Error);
+                return false;
+            }
+        }
+
         public static bool IsAdministrator()
         {
             var identity = WindowsIdentity.GetCurrent();
@@ -16,14 +37,14 @@ namespace WinSleepWell
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
-        public static bool EnsureAdminPrivileges(bool isService, string prgramName)
+        public static bool EnsureAdminPrivileges(bool isService, string programName)
         {
-            if (IsAdministrator())
+            if (IsAdministrator(programName))
             {
                 return true;
             }
 
-            string message = $"This {prgramName} must be run as an administrator.";
+            string message = $"This {programName} must be run as an administrator.";
             EventLogger.LogEvent($"[Insufficient Privileges] {message}", EventLogEntryType.Error);
             if ((isService == false) && (Environment.UserInteractive))
             {
