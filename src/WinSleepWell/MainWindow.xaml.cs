@@ -49,7 +49,7 @@ namespace WinSleepWell
 
         private void ApplyTheme()
         {
-            if (SystemThemeHelper.IsDarkMode())
+            if (ThemeHelper.IsDarkMode())
             {
                 Resources.MergedDictionaries.Add(new ResourceDictionary
                 {
@@ -81,7 +81,7 @@ namespace WinSleepWell
 
         private ContextMenuStrip? CreateContextMenu()
         {
-            bool isDarkMode = SystemThemeHelper.IsDarkMode();
+            bool isDarkMode = ThemeHelper.IsDarkMode();
 
             var contextMenu = new ContextMenuStrip
             {
@@ -109,9 +109,9 @@ namespace WinSleepWell
             {
                 _isFirstTimeShown = false;
 
-                if (SystemThemeHelper.IsDarkMode())
+                if (ThemeHelper.IsDarkMode())
                 {
-                    SystemThemeHelper.SetDarkMode(this);
+                    ThemeHelper.SetDarkMode(this);
                     Dispatcher.InvokeAsync(() =>
                     {
                         Hide();
