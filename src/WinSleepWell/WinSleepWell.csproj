@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyVersion>0.5.0.0</AssemblyVersion>
+    <FileVersion>0.5.0.0</FileVersion>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -12,10 +14,8 @@
     <PackageIcon>..\..\images\icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/isshiki/WinSleepWell</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
     <NoWin32Manifest>true</NoWin32Manifest>
     <UseWindowsForms>True</UseWindowsForms>
-    <FileVersion>0.4.0.0</FileVersion>
     <ApplicationIcon>..\..\images\app.ico</ApplicationIcon>
     <StartupObject>WinSleepWell.App</StartupObject>
     <RootNamespace>WinSleepWell</RootNamespace>
