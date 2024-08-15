@@ -26,7 +26,7 @@ namespace WinSleepWell
         public MainWindow()
         {
             InitializeComponent();
-            //ApplyTheme();
+            ApplyTheme();
             SetWindowTitleWithVersion();
             try
             {
@@ -49,6 +49,8 @@ namespace WinSleepWell
 
         private void ApplyTheme()
         {
+            Resources.MergedDictionaries.Clear();
+
             if (ThemeHelper.IsDarkMode())
             {
                 Resources.MergedDictionaries.Add(new ResourceDictionary

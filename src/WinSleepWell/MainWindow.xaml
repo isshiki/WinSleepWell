@@ -5,48 +5,28 @@
         ResizeMode="NoResize">
 
     <Window.Resources>
-        <!-- Button Style -->
-        <Style TargetType="Button">
-            <Setter Property="Padding" Value="5,2"/>
-            <Setter Property="MinWidth" Value="80"/>
-            <Setter Property="MinHeight" Value="30"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
-        </Style>
-
-        <!-- ComboBox Style -->
-        <Style TargetType="ComboBox">
-            <Setter Property="Padding" Value="3"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
-        </Style>
-
-        <!-- CheckBox Style -->
-        <Style TargetType="CheckBox">
-            <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Padding" Value="3"/>
-        </Style>
-
-        <!-- Label Style -->
-        <Style TargetType="Label">
-            <Setter Property="Width" Value="180"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
-        </Style>
-    </Window.Resources>
-
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!--ResourceDictionary Source="pack://application:,,,/WinSleepWell;component/Themes/DarkTheme.xaml"/-->
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>    
+    
     <Grid>
-        <Button Content="Reload Devices Info" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="180" Click="ReloadDevicesInfo_Click"/>
+        <Button Content="Reload Devices Info" Padding="5,2" MinHeight="30" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="180" Click="ReloadDevicesInfo_Click"/>
 
         <Label Content="Mouse and Touchpad" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Width="180"/>
-        <ComboBox Name="MouseInfoComboBox" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="580" SelectionChanged="MouseInfoComboBox_SelectionChanged"/>
-        <Button Name="EnableMouseButton" Content="Enable" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Width="80" Click="EnableMouseButton_Click" IsEnabled="False"/>
-        <Button Name="DisableMouseButton" Content="Disable" HorizontalAlignment="Left" Margin="100,110,0,0" VerticalAlignment="Top" Width="80" Click="DisableMouseButton_Click" IsEnabled="False"/>
+        <ComboBox Name="MouseInfoComboBox" Padding="3" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="580" SelectionChanged="MouseInfoComboBox_SelectionChanged"/>
+        <Button Name="EnableMouseButton" Padding="5,2" MinHeight="30" Content="Enable" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Width="80" Click="EnableMouseButton_Click" IsEnabled="False"/>
+        <Button Name="DisableMouseButton" Padding="5,2" MinHeight="30" Content="Disable" HorizontalAlignment="Left" Margin="100,110,0,0" VerticalAlignment="Top" Width="80" Click="DisableMouseButton_Click" IsEnabled="False"/>
         <CheckBox Name="MouseAutoToggleCheckBox" Content="Disable on sleep, enable on wake" HorizontalAlignment="Left" Margin="190,115,0,0" VerticalAlignment="Top" IsChecked="True" Checked="AutoToggleCheckBox_Checked" Unchecked="AutoToggleCheckBox_Unchecked"/>
 
         <Label Content="Fingerprint Reader" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top" Width="180"/>
-        <ComboBox Name="BiometricInfoComboBox" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top" Width="580" SelectionChanged="BiometricInfoComboBox_SelectionChanged"/>
-        <Button Name="EnableBiometricButton" Content="Enable" HorizontalAlignment="Left" Margin="10,220,0,0" VerticalAlignment="Top" Width="80" Click="EnableBiometricButton_Click" IsEnabled="False"/>
-        <Button Name="DisableBiometricButton" Content="Disable" HorizontalAlignment="Left" Margin="100,220,0,0" VerticalAlignment="Top" Width="80" Click="DisableBiometricButton_Click" IsEnabled="False"/>
+        <ComboBox Name="BiometricInfoComboBox" Padding="3" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top" Width="580" SelectionChanged="BiometricInfoComboBox_SelectionChanged"/>
+        <Button Name="EnableBiometricButton" Padding="5,2" MinHeight="30" Content="Enable" HorizontalAlignment="Left" Margin="10,220,0,0" VerticalAlignment="Top" Width="80" Click="EnableBiometricButton_Click" IsEnabled="False"/>
+        <Button Name="DisableBiometricButton" Padding="5,2" MinHeight="30" Content="Disable" HorizontalAlignment="Left" Margin="100,220,0,0" VerticalAlignment="Top" Width="80" Click="DisableBiometricButton_Click" IsEnabled="False"/>
         <CheckBox Name="BiometricAutoToggleCheckBox" Content="Disable on sleep, enable on wake" HorizontalAlignment="Left" Margin="190,225,0,0" VerticalAlignment="Top" IsChecked="True" Checked="AutoToggleCheckBox_Checked" Unchecked="AutoToggleCheckBox_Unchecked"/>
 
-        <Button Content="Close" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="80" Click="CloseWindow"/>
+        <Button Content="Close" Padding="5,2" MinHeight="30" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="80" Click="CloseWindow"/>
     </Grid>
 </Window>
