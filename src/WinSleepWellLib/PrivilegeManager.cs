@@ -37,7 +37,7 @@ namespace WinSleepWell
                 return true;
             }
 
-            string message = $"This {programName} must be run as an administrator.";
+            string message = $"This WinSleepWell {programName} must be run as an administrator.";
             EventLogger.LogEvent($"[Insufficient Privileges] {message}", EventLogEntryType.Error);
             if ((isService == false) && (Environment.UserInteractive))
             {
