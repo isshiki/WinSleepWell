@@ -7,10 +7,11 @@ namespace WinSleepWellService
     public sealed class WindowsBackgroundService : BackgroundService
     {
         private DeviceManager _deviceManager = null!;
+        private List<DeviceManager.DeviceInfo> _devices = null!;
         private PowerMonitor _powerMonitor = null!;
         private SettingsManager _settingsManager = null!;
-        private string _selectedMouseDevice = "None";
-        private string _selectedBiometricDevice = "None";
+        private string _selectedMouseDeviceID = "None";
+        private string _selectedBiometricDeviceID = "None";
         private bool _mouseAutoToggle = false;
         private bool _biometricAutoToggle = false;
 
@@ -24,7 +25,7 @@ namespace WinSleepWellService
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent("Failed to initialize WindowsBackgroundService: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent("[Service] Failed to initialize WindowsBackgroundService: " + ex.Message, EventLogEntryType.Error);
                 Environment.Exit(1);
             }
         }
@@ -36,12 +37,34 @@ namespace WinSleepWellService
             _deviceManager.Dispose();
         }
 
+        private string ExtractDeviceID(string deviceString)
+        {
+            if (String.IsNullOrEmpty(deviceString) || deviceString == "None")
+            {
+                return "None";
+            }
+
+            // Find the index of " ("
+            int index = deviceString.IndexOf(" (");
+
+            // If " (" is found, return the substring before it; otherwise, return "Invalid"
+            if (index >= 0)
+            {
+                return deviceString.Substring(0, index);
+            }
+
+            return "Invalid";
+        }
+
         private void LoadSettings()
         {
             var settings = _settingsManager.LoadSettings();
 
-            _selectedMouseDevice = settings?.MouseDeviceId ?? "None";
-            _selectedBiometricDevice = settings?.BiometricDeviceId ?? "None";
+            var selectedMouseDevice = settings?.MouseDeviceId ?? "None";
+            _selectedMouseDeviceID = ExtractDeviceID(selectedMouseDevice);
+
+            var selectedBiometricDevice = settings?.BiometricDeviceId ?? "None";
+            _selectedBiometricDeviceID = ExtractDeviceID(selectedBiometricDevice);
 
             _mouseAutoToggle = settings?.MouseAutoToggle ?? false;
             _biometricAutoToggle = settings?.BiometricAutoToggle ?? false;
@@ -49,22 +72,19 @@ namespace WinSleepWellService
 
         private string ChangeDeviceStatus(bool enable, bool isMouse, bool canUseGUI, string message)
         {
-            var selectedItem = isMouse ? _selectedMouseDevice : _selectedBiometricDevice;
-
-            if (selectedItem == "None" || string.IsNullOrEmpty(selectedItem))
+            var selectedDeviceID = isMouse ? _selectedMouseDeviceID : _selectedBiometricDeviceID;
+            if (String.IsNullOrEmpty(selectedDeviceID) || selectedDeviceID == "None")
             {
                 return "No device selected.";
             }
-
-            var deviceId = selectedItem?.Split(' ')[0] ?? "";
-            if (string.IsNullOrEmpty(deviceId))
+            if (selectedDeviceID == "Invalid")
             {
                 return "Invalid device ID.";
             }
 
-            var result = _deviceManager.ChangeDeviceStatus(deviceId, enable, canUseGUI, message);
+            var result = _deviceManager.ChangeDeviceStatus(selectedDeviceID, enable, canUseGUI, message);
 #if DEBUG
-            EventLogger.LogEvent($"Device status changed: {selectedItem}, Enabled: {enable}", EventLogEntryType.Information);
+            EventLogger.LogEvent($"[Service] Device status changed: {selectedDeviceID}, Enabled: {enable}", EventLogEntryType.Information);
 #endif
             return result;
         }
@@ -73,7 +93,7 @@ namespace WinSleepWellService
         private void OnSuspend(object? sender, PowerEventArgs e)
         {
 #if DEBUG
-            EventLogger.LogEvent("System is suspending: " + DateTimeOffset.Now, EventLogEntryType.Information);
+            EventLogger.LogEvent($"[Service] System is suspending: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
             LoadSettings();
 
@@ -91,7 +111,7 @@ namespace WinSleepWellService
         private void OnResume(object? sender, PowerEventArgs e)
         {
 #if DEBUG
-            EventLogger.LogEvent("System has resumed: " + DateTimeOffset.Now, EventLogEntryType.Information);
+            EventLogger.LogEvent($"[Service] System has resumed: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
             LoadSettings();
 
@@ -110,8 +130,39 @@ namespace WinSleepWellService
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
 #if DEBUG
-            EventLogger.LogEvent("WinSleepWell Service is starting at: " + DateTimeOffset.Now, EventLogEntryType.Information);
+            EventLogger.LogEvent($"[Service] WinSleepWell Service is starting at: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
+            // Load settings and get all device information
+            LoadSettings();
+            if (_mouseAutoToggle || _biometricAutoToggle)
+            {
+                _devices = _deviceManager.GetDevices();
+            }
+
+            if (_mouseAutoToggle)
+            {
+                // Find the device with the specified DeviceId (_selectedMouseDevice)
+                var mouseDevice = _devices.FirstOrDefault(device => device.DeviceId == _selectedMouseDeviceID);
+
+                if (mouseDevice != null && mouseDevice.Status != "OK")
+                {
+                    // The device is found and is not enabled, so we enable it
+                    ChangeDeviceStatus(true, true, false, " at Service startup");
+                }
+            }
+
+            if (_biometricAutoToggle)
+            {
+                // Find the device with the specified DeviceId (_selectedBiometricDevice)
+                var biometricDevice = _devices.FirstOrDefault(device => device.DeviceId == _selectedBiometricDeviceID);
+
+                if (biometricDevice != null && biometricDevice.Status != "OK")
+                {
+                    // The device is found and is not enabled, so we enable it
+                    ChangeDeviceStatus(true, false, false, " at Service startup");
+                }
+            }
+
             _powerMonitor.Suspend += OnSuspend;
             _powerMonitor.Resume += OnResume;
 
@@ -122,7 +173,7 @@ namespace WinSleepWellService
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
 #if DEBUG
-            EventLogger.LogEvent("WinSleepWell Service is stopping at: " + DateTimeOffset.Now, EventLogEntryType.Information);
+            EventLogger.LogEvent($"[Service] WinSleepWell Service is stopping at: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
             _powerMonitor.Suspend -= OnSuspend;
             _powerMonitor.Resume -= OnResume;
@@ -135,7 +186,7 @@ namespace WinSleepWellService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
 #if DEBUG
-            EventLogger.LogEvent("WinSleepWell Service is executing at: " + DateTimeOffset.Now, EventLogEntryType.Information);
+            EventLogger.LogEvent($"[Service] WinSleepWell Service is executing at: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
             // Wait indefinitely until the task is canceled.
             await Task.CompletedTask;
