@@ -51,10 +51,17 @@ namespace WinSleepWell
         private IntPtr _registrationHandle;
         private GCHandle _gcHandle;
 
+        private bool _isService;
+        private string _programName;
+
         public bool IsSuspended { get; private set; }
 
-        public PowerMonitor()
+
+        public PowerMonitor(bool isService)
         {
+            _isService = isService;
+            _programName = _isService ? "Service" : "application";
+
             try
             {
                 _callback = NotificationCallback;
@@ -76,13 +83,13 @@ namespace WinSleepWell
                 if (result != 0)
                 {
                     _gcHandle.Free();
-                    EventLogger.LogEvent("Something went wrong: DEVICE_NOTIFY_CALLBACK", EventLogEntryType.Error);
+                    EventLogger.LogEvent($"[{_programName}] Something went wrong: DEVICE_NOTIFY_CALLBACK", EventLogEntryType.Error);
                     throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
                 }
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent("Error initializing PowerMonitor: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent($"[{_programName}] Error initializing PowerMonitor: " + ex.Message, EventLogEntryType.Error);
                 throw;
             }
         }
@@ -169,7 +176,7 @@ namespace WinSleepWell
             }
             catch (Exception ex)
             {
-                var errorMessage = $"Error in NotificationCallback: {ex.Message}\nStack Trace: {ex.StackTrace}\nContext: {context}\nType: {type}";
+                var errorMessage = $"[{_programName}] Error in NotificationCallback: {ex.Message}\nStack Trace: {ex.StackTrace}\nContext: {context}\nType: {type}";
                 EventLogger.LogEvent(errorMessage, EventLogEntryType.Error);
 
                 // Optional: return an error code specific to your application
@@ -180,15 +187,29 @@ namespace WinSleepWell
 
         public void Dispose()
         {
-            if (_registrationHandle != IntPtr.Zero)
+            try
             {
-                PowerUnregisterSuspendResumeNotification(_registrationHandle);
-                _registrationHandle = IntPtr.Zero;
+                if (_registrationHandle != IntPtr.Zero)
+                {
+                    PowerUnregisterSuspendResumeNotification(_registrationHandle);
+                    _registrationHandle = IntPtr.Zero;
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLogger.LogEvent($"[{_programName}] Error unregistering PowerMonitor : {ex.Message}", EventLogEntryType.Error);
             }
 
-            if (_gcHandle.IsAllocated)
+            try
             {
-                _gcHandle.Free();
+                if (_gcHandle.IsAllocated)
+                {
+                    _gcHandle.Free();
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLogger.LogEvent($"[{_programName}] Error disposing PowerMonitor: {ex.Message}", EventLogEntryType.Error);
             }
         }
     }

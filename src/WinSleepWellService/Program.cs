@@ -1,7 +1,7 @@
 using WinSleepWell;
 using WinSleepWellService;
 
-if (PrivilegeManager.EnsureAdminPrivileges(true, "WinSleepWell Service") == false)
+if (PrivilegeManager.EnsureAdminPrivileges(true, "Service") == false)
 {
     Environment.Exit(1);
     return;

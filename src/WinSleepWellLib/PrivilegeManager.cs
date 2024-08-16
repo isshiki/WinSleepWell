@@ -30,13 +30,6 @@ namespace WinSleepWell
             }
         }
 
-        public static bool IsAdministrator()
-        {
-            var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-
         public static bool EnsureAdminPrivileges(bool isService, string programName)
         {
             if (IsAdministrator(programName))

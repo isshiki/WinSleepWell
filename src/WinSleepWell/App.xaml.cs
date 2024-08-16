@@ -16,7 +16,7 @@ namespace WinSleepWell
         {
             base.OnStartup(e);
 
-            if (PrivilegeManager.EnsureAdminPrivileges(false, "WinSleepWell application") == false)
+            if (PrivilegeManager.EnsureAdminPrivileges(false, "application") == false)
             {
                 Application.Current.Shutdown();
                 return;
@@ -41,7 +41,7 @@ namespace WinSleepWell
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var ex = e.ExceptionObject as Exception;
-            string logMessage = $"[WinSleepWell application] Unhandled Exception in AppDomain: {ex?.Message ?? "No Exception Message"}\nStack Trace: {ex?.StackTrace ?? "No Stack Trace"}";
+            string logMessage = $"[application] Unhandled Exception in AppDomain: {ex?.Message ?? "No Exception Message"}\nStack Trace: {ex?.StackTrace ?? "No Stack Trace"}";
             EventLogger.LogEvent(logMessage, EventLogEntryType.Error);
 
             // Optional: Show a user-friendly message box
@@ -57,7 +57,7 @@ namespace WinSleepWell
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             var ex = e.Exception;
-            string logMessage = $"[WinSleepWell application] Unhandled Dispatcher Exception: {ex.Message}\nStack Trace: {ex.StackTrace}";
+            string logMessage = $"[application] Unhandled Dispatcher Exception: {ex.Message}\nStack Trace: {ex.StackTrace}";
             EventLogger.LogEvent(logMessage, EventLogEntryType.Error);
 
             // Optional: Show a user-friendly message box

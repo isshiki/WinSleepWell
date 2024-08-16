@@ -17,6 +17,7 @@ namespace WinSleepWell
         private DeviceManager _deviceManager = null!;
         private List<DeviceManager.DeviceInfo> _devices = null!;
         private SettingsManager _settingsManager = null!;
+        private System.Timers.Timer _retryTimer = null!;
         private bool _isInitialized = false;
         private bool _isFirstTimeShown = true;
         private bool _isLoadingSettings = false;
@@ -32,7 +33,7 @@ namespace WinSleepWell
             SetWindowTitleWithVersion();
             try
             {
-                _deviceManager = new DeviceManager();
+                _deviceManager = new DeviceManager(false);
                 _settingsManager = new SettingsManager(false);
                 _devices = _deviceManager.GetDevices();
                 LoadDevicesInfo();
@@ -43,7 +44,7 @@ namespace WinSleepWell
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent("Failed to initialize MainWindow: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent($"[application] Failed to initialize MainWindow: {ex.Message}", EventLogEntryType.Error);
                 MessageBox.Show("Initialization failed. Please check the logs for more details.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
             }
@@ -70,17 +71,65 @@ namespace WinSleepWell
 
         private void InitializeNotifyIcon()
         {
-            var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
-            _notifyIcon = new NotifyIcon
+            try
             {
-                Icon = new Icon(iconPath),
-                Visible = true,
-                Text = "WinSleepWell"
-            };
-            //EventLogger.LogEvent("Added notify-icon", EventLogEntryType.Information);
+                var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
+                _notifyIcon = new NotifyIcon
+                {
+                    Icon = new Icon(iconPath),
+                    Text = "WinSleepWell"
+                };
 
-            _notifyIcon.DoubleClick += (s, e) => ShowMainWindow();
-            _notifyIcon.ContextMenuStrip = CreateContextMenu();
+                _notifyIcon.DoubleClick += (s, e) => ShowMainWindow();
+                _notifyIcon.ContextMenuStrip = CreateContextMenu();
+
+                // Set the NotifyIcon visibility to register it in the task tray.
+                _notifyIcon.Visible = true;
+
+                // Check if the NotifyIcon registration was successful
+                if (_notifyIcon.Visible)
+                {
+                    //EventLogger.LogEvent("[application] Successfully registered NotifyIcon.", EventLogEntryType.Information);
+                }
+                else
+                {
+                    // Log the failure to the event log
+                    EventLogger.LogEvent("[application] Failed to register NotifyIcon on first attempt.", EventLogEntryType.Error);
+
+                    // Schedule a retry after 1 minute
+                    _retryTimer = new System.Timers.Timer(60000); // 60,000 ms = 1 minute
+                    _retryTimer.Elapsed += (sender, args) =>
+                    {
+                        _retryTimer.Stop(); // Stop the timer to prevent repeated execution
+                        _retryTimer.Dispose();
+
+                        // Check if the application is still running before attempting retry
+                        if (Application.Current != null && !Application.Current.Dispatcher.HasShutdownStarted)
+                        {
+                            // Retry NotifyIcon registration
+                            _notifyIcon.Visible = true;
+
+                            // Log the result of the retry
+                            if (_notifyIcon.Visible)
+                            {
+                                //EventLogger.LogEvent("[application] Successfully registered NotifyIcon on retry.", EventLogEntryType.Information);
+                            }
+                            else
+                            {
+                                EventLogger.LogEvent("[application] Failed to register NotifyIcon on retry.", EventLogEntryType.Error);
+                                MessageBox.Show("Failed to register NotifyIcon on retry.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                Application.Current.Shutdown();
+                            }
+                        }
+                    };
+                    _retryTimer.Start(); // Start the timer for the retry
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log any unexpected exceptions to the event log
+                EventLogger.LogEvent($"[application] Failed to initialize NotifyIcon: {ex.Message}", EventLogEntryType.Error);
+            }
         }
 
         private ContextMenuStrip? CreateContextMenu()

@@ -18,9 +18,9 @@ namespace WinSleepWellService
         {
             try
             {
-                _deviceManager = new DeviceManager();
-                _settingsManager = new SettingsManager(false);
-                _powerMonitor = new PowerMonitor();
+                _deviceManager = new DeviceManager(true);
+                _settingsManager = new SettingsManager(true);
+                _powerMonitor = new PowerMonitor(true);
             }
             catch (Exception ex)
             {

@@ -5,9 +5,13 @@ namespace WinSleepWell
 {
     public class DeviceManager
     {
-        public DeviceManager()
+        private bool _isService;
+        private string _programName;
+
+        public DeviceManager(bool isService)
         {
-            // Do nothing
+            _isService = isService;
+            _programName = _isService ? "Service" : "application";
         }
 
         public void Dispose()
@@ -48,11 +52,11 @@ namespace WinSleepWell
             }
             catch (ManagementException ex)
             {
-                EventLogger.LogEvent("An error occurred while querying for WMI data: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent($"[{_programName}] An error occurred while querying for WMI data: {ex.Message}", EventLogEntryType.Error);
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent("Something went wrong: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent($"[{_programName}] Something went wrong: {ex.Message}", EventLogEntryType.Error);
             }
 
             return devices;
@@ -73,20 +77,20 @@ namespace WinSleepWell
                         var deviceName = mobj["Name"].ToString() ?? "Unknown device";
                         var resultMessage = $"{deviceName} is " + (enable ? "Enabled." : "Disabled.");
 
-                        EventLogger.LogEvent(prefix + resultMessage, EventLogEntryType.Information);
+                        EventLogger.LogEvent($"[{_programName}] {prefix}{resultMessage}", EventLogEntryType.Information);
                         return resultMessage;
                     }
                 }
             }
             catch (ManagementException ex)
             {
-                var errorMessage = "An error occurred while changing the device status: " + ex.Message + "\nStack Trace: " + ex.StackTrace;
+                var errorMessage = $"[{_programName}] An error occurred while changing the device status: {ex.Message}\nStack Trace: {ex.StackTrace}";
                 EventLogger.LogEvent(errorMessage, EventLogEntryType.Error);
                 return errorMessage;
             }
             catch (Exception ex)
             {
-                var errorMessage = "Something went wrong while changing the device status: " + ex.Message + "\nStack Trace: " + ex.StackTrace;
+                var errorMessage = $"[{_programName}] Something went wrong while changing the device status: {ex.Message}\nStack Trace: {ex.StackTrace}";
                 EventLogger.LogEvent(errorMessage, EventLogEntryType.Error);
                 return errorMessage;
             }

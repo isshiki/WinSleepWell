@@ -8,31 +8,41 @@ namespace WinSleepWell
 {
     public class SettingsManager
     {
-        private string _settingsFilePath;
         private bool _isService;
+        private string _programName;
+        private string _settingsFilePath;
 
         public SettingsManager(bool isService)
         {
             _isService = isService;
+            _programName = _isService ? "Service" : "application";
 
-            // 1. Check if settings.json exists in the bin\Release root directory
-            string binReleasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "settings.json");
-
-            // 2. If not found, check in the same directory as the executable (App or Service)
-            string exeDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
-
-            if (File.Exists(binReleasePath))
+            try
             {
-                _settingsFilePath = Path.GetFullPath(binReleasePath);
+                // 1. Check if settings.json exists in the bin\Release root directory
+                string binReleasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "settings.json");
+
+                // 2. If not found, check in the same directory as the executable (App or Service)
+                string exeDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
+
+                if (File.Exists(binReleasePath))
+                {
+                    _settingsFilePath = Path.GetFullPath(binReleasePath);
+                }
+                else if (File.Exists(exeDirectoryPath))
+                {
+                    _settingsFilePath = Path.GetFullPath(exeDirectoryPath);
+                }
+                else
+                {
+                    // Default to the executable directory if none found
+                    _settingsFilePath = exeDirectoryPath;
+                }
             }
-            else if (File.Exists(exeDirectoryPath))
+            catch (Exception ex)
             {
-                _settingsFilePath = Path.GetFullPath(exeDirectoryPath);
-            }
-            else
-            {
-                // Default to the executable directory if none found
-                _settingsFilePath = exeDirectoryPath;
+                _settingsFilePath = "settings.json";
+                HandleError("Failed to get settings.json file path.", ex);
             }
         }
 
