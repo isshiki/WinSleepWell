@@ -333,13 +333,13 @@ namespace WinSleepWell
         {
             var selectedItem = isMouse ? _selectedMouseDevice : _selectedBiometricDevice;
 
-            if (selectedItem == "None" || string.IsNullOrEmpty(selectedItem))
+            if (String.IsNullOrEmpty(selectedItem) || selectedItem == "None")
             {
                 return "Please select a device.";
             }
 
             var deviceId = selectedItem?.Split(' ')[0] ?? "";
-            if (string.IsNullOrEmpty(deviceId))
+            if (String.IsNullOrEmpty(deviceId))
             {
                 return "Please select a device.";
             }
