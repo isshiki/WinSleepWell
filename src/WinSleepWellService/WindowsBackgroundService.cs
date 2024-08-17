@@ -1,5 +1,7 @@
+using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Documents;
 using WinSleepWell;
 
 namespace WinSleepWellService
@@ -8,7 +10,8 @@ namespace WinSleepWellService
     {
         private DeviceManager _deviceManager = null!;
         private List<DeviceManager.DeviceInfo> _devices = null!;
-        private PowerMonitorWMI _powerMonitor = null!;
+        private PowerMonitor _powerMonitor = null!;
+        private LidMonitor _lidMonitor = null!;
         private SettingsManager _settingsManager = null!;
         private string _selectedMouseDeviceID = "None";
         private string _selectedBiometricDeviceID = "None";
@@ -21,7 +24,8 @@ namespace WinSleepWellService
             {
                 _deviceManager = new DeviceManager(true);
                 _settingsManager = new SettingsManager(true);
-                _powerMonitor = new PowerMonitorWMI(true);
+                _powerMonitor = new PowerMonitor(true);
+                _lidMonitor = new LidMonitor(true);
             }
             catch (Exception ex)
             {
@@ -32,6 +36,7 @@ namespace WinSleepWellService
         public override void Dispose()
         {
             base.Dispose();
+            _lidMonitor.Dispose();
             _powerMonitor.Dispose();
             _settingsManager.Dispose();
             _deviceManager.Dispose();
@@ -90,7 +95,7 @@ namespace WinSleepWellService
         }
 
 
-        private void OnSuspend(object? sender, PowerEventWMIArgs e)
+        private void OnSuspend(object? sender, PowerEventArgs e)
         {
 #if DEBUG
             EventLogger.LogEvent($"[Service] System is suspending: {DateTimeOffset.Now}", EventLogEntryType.Information);
@@ -108,7 +113,7 @@ namespace WinSleepWellService
             }
         }
 
-        private void OnResume(object? sender, PowerEventWMIArgs e)
+        private void OnResume(object? sender, PowerEventArgs e)
         {
 #if DEBUG
             EventLogger.LogEvent($"[Service] System has resumed: {DateTimeOffset.Now}", EventLogEntryType.Information);
@@ -123,6 +128,17 @@ namespace WinSleepWellService
             if (_biometricAutoToggle)
             {
                 ChangeDeviceStatus(true, false, false, " EVENT");
+            }
+        }
+        private static void OnLidStateChanged(object? sender, LidEventArgs e)
+        {
+            if (e.IsLidClosed)
+            {
+                EventLogger.LogEvent($"[Service] Lid is closed at {DateTimeOffset.Now}", EventLogEntryType.Information);
+            }
+            else
+            {
+                EventLogger.LogEvent($"[Service] Lid is open at {DateTimeOffset.Now}", EventLogEntryType.Information);
             }
         }
 
@@ -162,6 +178,8 @@ namespace WinSleepWellService
                     ChangeDeviceStatus(true, false, false, " at Service startup");
                 }
             }
+
+            _lidMonitor.LidStateChanged += OnLidStateChanged;
 
             _powerMonitor.Suspend += OnSuspend;
             _powerMonitor.Resume += OnResume;

@@ -4,6 +4,7 @@ For production, we have adopted the Win32 API version in order to prioritize rea
 The PowerMonitorWMI class implemented in this PowerMonitorWMI.cs file is the unused WMI version, retained for potential future functionality changes and possibilities.
 */
 
+using System;
 using System.Diagnostics;
 using System.Management;
 using System.Text;

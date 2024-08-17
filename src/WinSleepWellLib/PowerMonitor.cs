@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace WinSleepWell
@@ -83,15 +84,16 @@ namespace WinSleepWell
 
                 if (result != 0)
                 {
-                    _gcHandle.Free();
-                    EventLogger.LogEvent($"[{_programName}] Something went wrong: DEVICE_NOTIFY_CALLBACK", EventLogEntryType.Error);
-                    throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+                    EventLogger.LogEvent($"[{_programName}] Failed to register suspend resume notification.", EventLogEntryType.Error);
+                    Dispose();
+                    throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error(), "Failed to register suspend resume notification.");
                 }
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent($"[{_programName}] Error initializing PowerMonitor: " + ex.Message, EventLogEntryType.Error);
-                throw;
+                EventLogger.LogEvent($"[{_programName}] Failed to initialize PowerMonitor: " + ex.Message, EventLogEntryType.Error);
+                Dispose();
+                throw new Exception("Failed to initialize PowerMonitor.", ex);
             }
         }
 
@@ -215,7 +217,7 @@ namespace WinSleepWell
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent($"[{_programName}] Error retrieving resume reason from event log: {ex.Message}", EventLogEntryType.Error);
+                EventLogger.LogEvent($"[{_programName}] Failed to retrieve resume reason from event log: {ex.Message}", EventLogEntryType.Error);
             }
             return "Unknown Resume Reason";
         }
@@ -233,7 +235,7 @@ namespace WinSleepWell
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent($"[{_programName}] Error unregistering PowerMonitor : {ex.Message}", EventLogEntryType.Error);
+                EventLogger.LogEvent($"[{_programName}] Failed to unregister PowerMonitor : {ex.Message}", EventLogEntryType.Error);
             }
 
             try
@@ -245,7 +247,7 @@ namespace WinSleepWell
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent($"[{_programName}] Error disposing PowerMonitor: {ex.Message}", EventLogEntryType.Error);
+                EventLogger.LogEvent($"[{_programName}] Failed to dispose PowerMonitor: {ex.Message}", EventLogEntryType.Error);
             }
         }
     }
