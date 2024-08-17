@@ -5,21 +5,21 @@ namespace WinSleepWell
 {
     public class PowerEventArgs : EventArgs
     {
-        public string Message { get; }
+        public string Reason { get; }
 
-        public PowerEventArgs(string message)
+        public PowerEventArgs(string reason)
         {
-            Message = message;
+            Reason = reason;
         }
     }
 
-    public class PowerMonitor
+    public class PowerMonitor : IDisposable
     {
         public event EventHandler<PowerEventArgs>? Suspend;
         public event EventHandler<PowerEventArgs>? Resume;
 
         private const int DEVICE_NOTIFY_CALLBACK = 2;
-        
+
         private const int PBT_APMSUSPEND = 4; // (0x4) - System is suspending operation.
         private const int PBT_APMRESUMEAUTOMATIC = 18; // (0x12) - Operation is resuming automatically from a low-power state.This message is sent every time the system resumes.
         private const int PBT_APMRESUMESUSPEND = 7; // (0x7) - Operation is resuming from a low-power state.This message is sent after PBT_APMRESUMEAUTOMATIC if the resume is triggered by user input, such as pressing a key.
@@ -54,11 +54,12 @@ namespace WinSleepWell
         private bool _isService;
         private string _programName;
 
-        public bool IsSuspended { get; private set; }
+        public bool IsSleeping { get; private set; }
 
 
         public PowerMonitor(bool isService)
         {
+            IsSleeping = false;
             _isService = isService;
             _programName = _isService ? "Service" : "application";
 
@@ -105,24 +106,26 @@ namespace WinSleepWell
                         EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
 #endif
                         // System is suspending operation
+                        //スリープした理由は見なくてよい。
                         Suspend?.Invoke(this, new PowerEventArgs(""));
-                        IsSuspended = true;
+                        IsSleeping = true;
                         return 0;
                     case PBT_APMRESUMEAUTOMATIC:
 #if DEBUG
                         EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
 #endif                  
                         // System is resuming automatically from a low-power state
-                        Resume?.Invoke(this, new PowerEventArgs(""));
-                        IsSuspended = false;
+                        var reason = GetResumeReasonFromEventLog();
+                        Resume?.Invoke(this, new PowerEventArgs($"reason: {reason}"));
+                        IsSleeping = false;
                         return 0;
                     case PBT_APMRESUMECRITICAL:
 #if DEBUG
                         EventLogger.LogEvent("PBT_APMRESUMECRITICAL", EventLogEntryType.Information);
 #endif
                         // System is resuming after a critical suspension
-                        Resume?.Invoke(this, new PowerEventArgs(" after a critical suspension"));
-                        IsSuspended = false;
+                        Resume?.Invoke(this, new PowerEventArgs("reason after a critical suspension"));
+                        IsSleeping = false;
                         return 0;
                     case PBT_APMRESUMESUSPEND:
                         // System is resuming from a low-power state triggered by user input
@@ -184,6 +187,39 @@ namespace WinSleepWell
             }
             return 0;
         }
+
+        private string GetResumeReasonFromEventLog()
+        {
+            try
+            {
+                // Access the event log
+                using (var eventLog = new EventLog("System"))
+                {
+                    // Use LINQ to filter by EventID and get the latest one
+                    var latestEntry = eventLog.Entries.Cast<EventLogEntry>()
+                                        .Where(entry => entry.InstanceId == 506)  // Look for Event ID 506 which is typically related to resume
+                                        .LastOrDefault();
+                    var reason = latestEntry?.ReplacementStrings[0] ?? "";  // The first replacement string usually contains the reason
+                    return reason.ToString();
+                    // [モダン スタンバイの SleepStudy | Microsoft Learn](https://learn.microsoft.com/ja-jp/windows-hardware/design/device-experiences/modern-standby-sleepstudy)
+                    // 1   電源ボタン　＝人力
+                    // 15  カバー　＝人力
+                    // 11  画面オフ要求　＝謎
+                    // 20  休止状態、またはシャットダウン　＝人力
+                    // 16777220    PDC タスク クライアント: メンテナンス スケジューラー　＝この場合はメンテナンスを待って復帰する
+                    // 4	ユーザー入力
+                    // 32	入力マウス　＝この場合の復帰は強制的にスリープにすればよい
+                    // 33  入力タッチパッド　＝この場合の復帰は強制的にスリープにすればよい
+                    //+		TimeGenerated	{2024/07/23 14:00:29}	System.DateTime 時間が1秒以内などでないとおかしい。
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLogger.LogEvent($"[{_programName}] Error retrieving resume reason from event log: {ex.Message}", EventLogEntryType.Error);
+            }
+            return "Unknown Resume Reason";
+        }
+
 
         public void Dispose()
         {

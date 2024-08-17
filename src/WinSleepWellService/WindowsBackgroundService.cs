@@ -8,7 +8,7 @@ namespace WinSleepWellService
     {
         private DeviceManager _deviceManager = null!;
         private List<DeviceManager.DeviceInfo> _devices = null!;
-        private PowerMonitor _powerMonitor = null!;
+        private PowerMonitorWMI _powerMonitor = null!;
         private SettingsManager _settingsManager = null!;
         private string _selectedMouseDeviceID = "None";
         private string _selectedBiometricDeviceID = "None";
@@ -21,7 +21,7 @@ namespace WinSleepWellService
             {
                 _deviceManager = new DeviceManager(true);
                 _settingsManager = new SettingsManager(true);
-                _powerMonitor = new PowerMonitor(true);
+                _powerMonitor = new PowerMonitorWMI(true);
             }
             catch (Exception ex)
             {
@@ -90,7 +90,7 @@ namespace WinSleepWellService
         }
 
 
-        private void OnSuspend(object? sender, PowerEventArgs e)
+        private void OnSuspend(object? sender, PowerEventWMIArgs e)
         {
 #if DEBUG
             EventLogger.LogEvent($"[Service] System is suspending: {DateTimeOffset.Now}", EventLogEntryType.Information);
@@ -99,16 +99,16 @@ namespace WinSleepWellService
 
             if (_mouseAutoToggle)
             {
-                ChangeDeviceStatus(false, true, false, e.Message);
+                ChangeDeviceStatus(false, true, false, " EVENT");
             }
 
             if (_biometricAutoToggle)
             {
-                ChangeDeviceStatus(false, false, false, e.Message);
+                ChangeDeviceStatus(false, false, false, " EVENT");
             }
         }
 
-        private void OnResume(object? sender, PowerEventArgs e)
+        private void OnResume(object? sender, PowerEventWMIArgs e)
         {
 #if DEBUG
             EventLogger.LogEvent($"[Service] System has resumed: {DateTimeOffset.Now}", EventLogEntryType.Information);
@@ -117,12 +117,12 @@ namespace WinSleepWellService
 
             if (_mouseAutoToggle)
             {
-                ChangeDeviceStatus(true, true, false, e.Message);
+                ChangeDeviceStatus(true, true, false, " EVENT");
             }
 
             if (_biometricAutoToggle)
             {
-                ChangeDeviceStatus(true, false, false, e.Message);
+                ChangeDeviceStatus(true, false, false, " EVENT");
             }
         }
 
