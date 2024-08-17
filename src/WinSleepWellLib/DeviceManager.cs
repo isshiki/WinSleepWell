@@ -3,7 +3,7 @@ using System.Management;
 
 namespace WinSleepWell
 {
-    public class DeviceManager
+    public class DeviceManager : IDisposable
     {
         private bool _isService;
         private string _programName;

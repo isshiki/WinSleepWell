@@ -6,7 +6,7 @@ using Formatting = Newtonsoft.Json.Formatting;
 
 namespace WinSleepWell
 {
-    public class SettingsManager
+    public class SettingsManager : IDisposable
     {
         private bool _isService;
         private string _programName;
