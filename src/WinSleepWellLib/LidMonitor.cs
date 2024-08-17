@@ -80,16 +80,25 @@ namespace WinSleepWell
             {
                 try
                 {
-                    _recipientHandle = RegisterServiceCtrlHandlerEx(serviceName, _callback, IntPtr.Zero);
+                    _recipientHandle = RegisterServiceCtrlHandlerEx(serviceName, _callback, IntPtr.Zero);  // Unregister is not required
 
-                    if (_recipientHandle == IntPtr.Zero)
+                    if (_recipientHandle != IntPtr.Zero)
                     {
-                        throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error(), "Failed to register service control handler.");
+#if DEBUG || TEST
+                        EventLogger.LogEvent("Registered Service Control Handler", EventLogEntryType.Information);
+#endif
+                    }
+                    else
+                    {
+                        var errCode = Marshal.GetLastWin32Error();
+                        Debug.Assert(errCode != -1073741819 || false, "Access Violation: Run as a service.");
+                        // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--1000-1299-
+                        throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode}(0x{errCode:X8})] Failed to register service control handler.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    EventLogger.LogEvent($"[{_programName}] Failed to initialize LidMonitor scm: " + ex.Message, EventLogEntryType.Error);
+                    EventLogger.LogEvent($"[{_programName}] Failed to initialize LidMonitor - service control handle: {ex.Message}", EventLogEntryType.Error);
                     throw new Exception("Failed to initialize LidMonitor - service control handle.", ex);
                 }
             }
@@ -99,7 +108,7 @@ namespace WinSleepWell
                 // Please specify the window handle that will receive notifications in `_recipientHandle`.
                 // If necessary, use the CreateWindowEx function to create a hidden window for receiving messages, and specify its handle.
                 // Notifications will not be sent to `NotificationCallback`, but instead, they will be sent to the `WndProc` of that window.
-                Debug.Assert(false, "Not Implemeted!!!");
+                Debug.Assert(false, "Not Implemented!!!");
                 throw new Exception("Failed to initialize LidMonitor - window handle.");
             }
 
@@ -108,16 +117,23 @@ namespace WinSleepWell
                 var handleFlag = _isService ? DEVICE_NOTIFY_SERVICE_HANDLE : DEVICE_NOTIFY_WINDOW_HANDLE;
                 _registrationHandle = RegisterPowerSettingNotification(_recipientHandle, ref GUID_LIDSWITCH_STATE_CHANGE, handleFlag);
 
-                if (_registrationHandle == IntPtr.Zero)
+                if (_registrationHandle != IntPtr.Zero)
                 {
-                    EventLogger.LogEvent($"[{_programName}] Failed to register lid switch state change notification.", EventLogEntryType.Error);
-                    Dispose();
-                    throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error(), "Failed to register lid switch state change notification.");
+#if DEBUG || TEST
+                    EventLogger.LogEvent("Registered Power Setting Notification", EventLogEntryType.Information);
+#endif
+                }
+                else
+                {
+                    var errCode = Marshal.GetLastWin32Error();
+                    Debug.Assert(errCode != 1083 || false, "ERROR_SERVICE_NOT_IN_EXE: The executable program that this service is configured to run in does not implement the service.");
+                    // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--1000-1299-
+                    throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode}(0x{errCode:X8})] Failed to register lid switch state change notification.");
                 }
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent($"[{_programName}] Failed to initialize LidMonitor: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent($"[{_programName}] Failed to initialize LidMonitor: {ex.Message}", EventLogEntryType.Error);
                 Dispose();
                 throw new Exception("Failed to initialize LidMonitor.", ex);
             }
@@ -148,6 +164,9 @@ namespace WinSleepWell
                 {
                     UnregisterPowerSettingNotification(_registrationHandle);
                     _registrationHandle = IntPtr.Zero;
+#if DEBUG || TEST
+                    EventLogger.LogEvent("Unregistered Power Setting Notification", EventLogEntryType.Information);
+#endif
                 }
             }
             catch (Exception ex)

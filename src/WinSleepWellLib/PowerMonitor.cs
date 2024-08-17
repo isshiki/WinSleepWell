@@ -82,16 +82,21 @@ namespace WinSleepWell
 
                 Marshal.FreeHGlobal(recipient);
 
-                if (result != 0)
+                if (result == 0)
                 {
-                    EventLogger.LogEvent($"[{_programName}] Failed to register suspend resume notification.", EventLogEntryType.Error);
-                    Dispose();
-                    throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error(), "Failed to register suspend resume notification.");
+#if DEBUG || TEST
+                        EventLogger.LogEvent("Registered Suspend Resume Notification", EventLogEntryType.Information);
+#endif
+                }
+                else
+                {
+                    var errCode = Marshal.GetLastWin32Error();
+                    throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode:X8}] Failed to register suspend resume notification.");
                 }
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent($"[{_programName}] Failed to initialize PowerMonitor: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent($"[{_programName}] Failed to initialize PowerMonitor: {ex.Message}", EventLogEntryType.Error);
                 Dispose();
                 throw new Exception("Failed to initialize PowerMonitor.", ex);
             }
@@ -104,7 +109,7 @@ namespace WinSleepWell
                 switch (type)
                 {
                     case PBT_APMSUSPEND:
-#if DEBUG
+#if DEBUG || TEST
                         EventLogger.LogEvent("PBT_APMSUSPEND", EventLogEntryType.Information);
 #endif
                         // System is suspending operation
@@ -113,7 +118,7 @@ namespace WinSleepWell
                         IsSleeping = true;
                         return 0;
                     case PBT_APMRESUMEAUTOMATIC:
-#if DEBUG
+#if DEBUG || TEST
                         EventLogger.LogEvent("PBT_APMRESUMEAUTOMATIC", EventLogEntryType.Information);
 #endif                  
                         // System is resuming automatically from a low-power state
@@ -122,7 +127,7 @@ namespace WinSleepWell
                         IsSleeping = false;
                         return 0;
                     case PBT_APMRESUMECRITICAL:
-#if DEBUG
+#if DEBUG || TEST
                         EventLogger.LogEvent("PBT_APMRESUMECRITICAL", EventLogEntryType.Information);
 #endif
                         // System is resuming after a critical suspension

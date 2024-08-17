@@ -97,7 +97,7 @@ namespace WinSleepWellService
 
         private void OnSuspend(object? sender, PowerEventArgs e)
         {
-#if DEBUG
+#if DEBUG || TEST
             EventLogger.LogEvent($"[Service] System is suspending: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
             LoadSettings();
@@ -115,7 +115,7 @@ namespace WinSleepWellService
 
         private void OnResume(object? sender, PowerEventArgs e)
         {
-#if DEBUG
+#if DEBUG || TEST
             EventLogger.LogEvent($"[Service] System has resumed: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
             LoadSettings();
@@ -145,7 +145,7 @@ namespace WinSleepWellService
         // Triggered when the application host is ready to start the service.
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
-#if DEBUG
+#if DEBUG || TEST
             EventLogger.LogEvent($"[Service] WinSleepWell Service is starting at: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
             // Load settings and get all device information
@@ -190,7 +190,7 @@ namespace WinSleepWellService
         // Triggered when the application host is performing a graceful shutdown.
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-#if DEBUG
+#if DEBUG || TEST
             EventLogger.LogEvent($"[Service] WinSleepWell Service is stopping at: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
             _powerMonitor.Suspend -= OnSuspend;
@@ -203,7 +203,7 @@ namespace WinSleepWellService
         // The implementation should return a task that represents the lifetime of the long running operation(s) being performed.
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-#if DEBUG
+#if DEBUG || TEST
             EventLogger.LogEvent($"[Service] WinSleepWell Service is executing at: {DateTimeOffset.Now}", EventLogEntryType.Information);
 #endif
             // Wait indefinitely until the task is canceled.
