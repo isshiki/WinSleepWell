@@ -27,10 +27,19 @@ namespace WinSleepWell
 
             mainWindow = new MainWindow();
 
+            Application.Current.SessionEnding += new SessionEndingCancelEventHandler(Current_SessionEnding);
+            this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
             if (e.Args.Contains("--show-settings"))
             {
                 mainWindow.ShowMainWindow();
             }
+        }
+
+        private void Current_SessionEnding(object sender, SessionEndingCancelEventArgs e)
+        {
+            // Occurs when the user ends the Windows session by logging off or shutting down the operating system.
+            mainWindow?.ExitApplication();
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -51,7 +60,8 @@ namespace WinSleepWell
             }
 
             // Optional: Force application to close
-            Environment.Exit(1);
+            mainWindow?.ExitApplication();
+            //Environment.Exit(1);
         }
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)

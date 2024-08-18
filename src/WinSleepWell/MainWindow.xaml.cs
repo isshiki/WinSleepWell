@@ -183,7 +183,7 @@ namespace WinSleepWell
             }
         }
 
-        private void ExitApplication()
+        public void ExitApplication()
         {
             _notifyIcon.Visible = false;
             _notifyIcon.Dispose();
