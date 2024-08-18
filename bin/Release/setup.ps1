@@ -50,16 +50,33 @@ function Install-ServiceAndTask() {
         Write-Host "Service '$serviceName' is already installed."
     } else {
         # Register the service using sc command
-        sc.exe create $serviceName binPath= "$fullSvcExePath" DisplayName= "WinSleepWell Service" start= auto obj= LocalSystem
-        Write-Host "Service '$serviceName' installed successfully."
+        $createService = sc.exe create $serviceName binPath= "$fullSvcExePath" DisplayName= "WinSleepWell Service" start= auto obj= LocalSystem
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Service '$serviceName' installed successfully."
+        } else {
+            Write-Host "Failed to install service '$serviceName'. Exit code: $LASTEXITCODE"
+            Write-Host $createService
+            return  # If an error occurs, no further processing is performed
+        }
 
         # Add description to the service
-        sc.exe description $serviceName "$serviceDescription"
-        Write-Host "Service description added."
+        $addDescription = sc.exe description $serviceName "$serviceDescription"
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Service description added."
+        } else {
+            Write-Host "Failed to add description to service '$serviceName'. Exit code: $LASTEXITCODE"
+            Write-Host $addDescription
+            return  # If an error occurs, no further processing is performed
+        }
 
         # Start the service automatically
-        sc.exe start $serviceName
-        Write-Host "Service '$serviceName' started successfully."
+        $startService = sc.exe start $serviceName
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Service '$serviceName' started successfully."
+        } else {
+            Write-Host "Failed to start service '$serviceName'. Exit code: $LASTEXITCODE"
+            Write-Host $startService
+        }
     }
 
     # Check if the TaskScheduler task already exists
@@ -122,30 +139,76 @@ function Install-ServiceAndTask() {
         $taskPath = Join-Path $env:TEMP "$taskName.xml"
         $taskXml | Out-File -FilePath $taskPath -Encoding Unicode
 
-        schtasks /Create /F /XML $taskPath /TN $taskName
+        $registerTask = schtasks /Create /F /XML $taskPath /TN $taskName
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Task '$taskName' installed successfully."
+        } else {
+            Write-Host "Failed to install task '$taskName'. Exit code: $LASTEXITCODE"
+            Write-Host $registerTask
+        }
         Remove-Item $taskPath
-        Write-Host "Task '$taskName' installed successfully."
 
         # Run the application immediately after task registration
-        Start-Process -FilePath $fullAppExePath -WorkingDirectory $fullAppWorkingDir -Verb RunAs -ArgumentList "--show-settings"
-        Write-Host "Application '$fullAppExePath' started successfully."
+        $process = Start-Process -FilePath $fullAppExePath -WorkingDirectory $fullAppWorkingDir -Verb RunAs -ArgumentList "--show-settings" -PassThru
+        if ($process -ne $null) {
+            Write-Host "Application '$fullAppExePath' started successfully."
+        }else {
+            Write-Host "Failed to start application '$fullAppExePath'."
+        }
     }
 }
 
 function Uninstall-ServiceAndTask() {
+    # Check if WinSleepWell applicaiton is running, and if so, terminate it.
+    $processName = "WinSleepWell"
+    $runningProcess = Get-Process -Name $processName -ErrorAction SilentlyContinue
+    if ($runningProcess) {
+        Write-Host "Process '$processName' is running. Attempting to stop it."
+        $runningProcess | ForEach-Object {
+            try {
+                $_.Kill()
+                Write-Host "Process '$processName' stopped successfully."
+            } catch {
+                Write-Host "Failed to stop process '$processName'."
+                Write-Host $_.Exception.Message
+            }
+        }
+    } else {
+        Write-Host "Process '$processName' is not running."
+    }
+
     # Uninstall the service if it exists
-    if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
-        sc.exe stop $serviceName
-        sc.exe delete $serviceName
-        Write-Host "Service '$serviceName' uninstalled successfully."
+    $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+    if ($service) {
+        if ($service.Status -eq 'Running') {
+            $stopService = sc.exe stop $serviceName
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "Service '$serviceName' stopped successfully."
+            } else {
+                Write-Host "Failed to stop service '$serviceName'. Exit code: $LASTEXITCODE"
+                Write-Host $stopService
+            }
+        }
+        $deleteService = sc.exe delete $serviceName
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Service '$serviceName' uninstalled successfully."
+        } else {
+            Write-Host "Failed to delete service '$serviceName'. Exit code: $LASTEXITCODE"
+            Write-Host $deleteService
+        }
     } else {
         Write-Host "Service '$serviceName' is not installed."
     }
 
     # Uninstall the TaskScheduler task if it exists
     if (schtasks /Query /TN $taskName /FO LIST /V 2>$null) {
-        schtasks /Delete /TN $taskName /F
-        Write-Host "Task '$taskName' uninstalled successfully."
+        $deleteTask = schtasks /Delete /TN $taskName /F
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Task '$taskName' uninstalled successfully."
+        } else {
+            Write-Host "Failed to delete task '$taskName'. Exit code: $LASTEXITCODE"
+            Write-Host $deleteTask
+        }
     } else {
         Write-Host "Task '$taskName' is not installed."
     }
