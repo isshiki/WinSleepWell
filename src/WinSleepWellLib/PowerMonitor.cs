@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*
+ * The following class could have been implemented more easily.
+ * - [ServiceBase.OnPowerEvent(PowerBroadcastStatus) Method(System.ServiceProcess) | Microsoft Learn] (https://learn.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicebase.onpowerevent?view=net-8.0)
+ */
+
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 

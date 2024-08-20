@@ -1,8 +1,8 @@
 ﻿/*
-The PowerMonitor class in this project has two versions: a fast, low-level Win32 API version and a simpler, slightly higher-level WMI version.
-For production, we have adopted the Win32 API version in order to prioritize real-time performance. This PowerMonitor class is implemented in the PowerMonitor.cs file.
-The PowerMonitorWMI class implemented in this PowerMonitorWMI.cs file is the unused WMI version, retained for potential future functionality changes and possibilities.
-*/
+ * The PowerMonitor class in this project has two versions: a fast, low-level Win32 API version and a simpler, slightly higher-level WMI version.
+ * For production, we have adopted the Win32 API version in order to prioritize real-time performance. This PowerMonitor class is implemented in the PowerMonitor.cs file.
+ * The PowerMonitorWMI class implemented in this PowerMonitorWMI.cs file is the unused WMI version, retained for potential future functionality changes and possibilities.
+ */
 
 using System;
 using System.Diagnostics;

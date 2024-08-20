@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Documents;
+using System.ServiceProcess;
+using System.Runtime.InteropServices;
 using WinSleepWell;
 
 namespace WinSleepWellService
@@ -29,10 +29,11 @@ namespace WinSleepWellService
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent("[Service] Failed to initialize WindowsBackgroundService: " + ex.Message, EventLogEntryType.Error);
+                EventLogger.LogEvent($"[Service] Failed to initialize WindowsBackgroundService: {ex.Message}", EventLogEntryType.Error);
                 Environment.Exit(1);
             }
         }
+
         public override void Dispose()
         {
             base.Dispose();

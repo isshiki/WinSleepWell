@@ -1,3 +1,4 @@
+using System.ServiceProcess;
 using WinSleepWell;
 using WinSleepWellService;
 
@@ -10,7 +11,7 @@ if (PrivilegeManager.EnsureAdminPrivileges(true, "Service") == false)
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddWindowsService(options =>
 {
-    options.ServiceName = "WinSleepWell Service";
+    options.ServiceName = "WinSleepWellService";
 });
 
 // Configures logging to use Windows Event Log (currently disabled).

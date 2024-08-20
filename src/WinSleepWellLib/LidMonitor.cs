@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.ServiceProcess;
 
 namespace WinSleepWell
 {
@@ -43,9 +44,6 @@ namespace WinSleepWell
         private LidNotificationHandler _callback;
         // https://learn.microsoft.com/en-us/windows/win32/api/winsvc/nc-winsvc-lphandler_function_ex
 
-        //private delegate IntPtr WndProcCallback(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-        //private WndProcCallback _callback;
-
         // [Service Control Handler Function](https://learn.microsoft.com/en-us/windows/win32/services/service-control-handler-function)
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern IntPtr RegisterServiceCtrlHandlerEx(string serviceName, LidNotificationHandler handler, IntPtr context);
@@ -81,7 +79,6 @@ namespace WinSleepWell
                 try
                 {
                     _recipientHandle = RegisterServiceCtrlHandlerEx(serviceName, _callback, IntPtr.Zero);  // Unregister is not required
-
                     if (_recipientHandle != IntPtr.Zero)
                     {
 #if DEBUG || TEST
@@ -93,7 +90,7 @@ namespace WinSleepWell
                         var errCode = Marshal.GetLastWin32Error();
                         Debug.Assert(errCode != -1073741819 || false, "Access Violation: Run as a service.");
                         // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--1000-1299-
-                        throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode}(0x{errCode:X8})] Failed to register service control handler.");
+                        throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode} (0x{errCode:X8})] Failed to register service control handler.");
                     }
                 }
                 catch (Exception ex)
@@ -128,7 +125,7 @@ namespace WinSleepWell
                     var errCode = Marshal.GetLastWin32Error();
                     Debug.Assert(errCode != 1083 || false, "ERROR_SERVICE_NOT_IN_EXE: The executable program that this service is configured to run in does not implement the service.");
                     // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--1000-1299-
-                    throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode}(0x{errCode:X8})] Failed to register lid switch state change notification.");
+                    throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode} (0x{errCode:X8})] Failed to register lid switch state change notification.");
                 }
             }
             catch (Exception ex)
