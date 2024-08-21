@@ -4,8 +4,22 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace WinSleepWell
 {
-    public class MaintenanceMonitor
+    public class MaintenanceMonitor : IDisposable
     {
+        private bool _isService;
+        private string _programName;
+
+        public MaintenanceMonitor(bool isService)
+        {
+            _isService = isService;
+            _programName = _isService ? "Service" : "application";
+        }
+
+        public void Dispose()
+        {
+            // Do nothing
+        }
+
         public bool IsAutomaticMaintenanceRunning()
         {
             using (var ts = new TaskService())

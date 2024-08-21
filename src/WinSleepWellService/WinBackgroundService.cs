@@ -6,7 +6,7 @@ using WinSleepWell;
 
 namespace WinSleepWellService
 {
-    public sealed class WindowsBackgroundService : BackgroundService
+    public sealed class WinBackgroundService : BackgroundService
     {
         private DeviceManager _deviceManager = null!;
         private List<DeviceManager.DeviceInfo> _devices = null!;
@@ -18,18 +18,38 @@ namespace WinSleepWellService
         private bool _mouseAutoToggle = false;
         private bool _biometricAutoToggle = false;
 
-        public WindowsBackgroundService()
+        public static string ServiceName { get; private set; } = "WinSleepWellService";
+        //private WinServiceManager _winServiceManager = null!;
+        //private IntPtr _serviceHandle = IntPtr.Zero;
+        //private ServiceController _sc = null!;
+
+        //public WinBackgroundService(WinServiceManager winServiceManager, IntPtr serviceHandle)
+        public WinBackgroundService()
         {
+            //try
+            //{
+            //    _sc = new ServiceController(ServiceName);
+            //    //Console.WriteLine("Status = " + _sc.Status);
+            //    //Console.WriteLine("Can Pause and Continue = " + _sc.CanPauseAndContinue);
+            //    //Console.WriteLine("Can ShutDown = " + _sc.CanShutdown);
+            //    //Console.WriteLine("Can Stop = " + _sc.CanStop);
+            //}
+            //catch (Exception ex)
+            //{
+            //    EventLogger.LogEvent($"[Service] Failed to get ServiceController({ServiceName}): {ex.Message}", EventLogEntryType.Error);
+            //    Environment.Exit(1);
+            //}
+
             try
             {
                 _deviceManager = new DeviceManager(true);
                 _settingsManager = new SettingsManager(true);
                 _powerMonitor = new PowerMonitor(true);
-                _lidMonitor = new LidMonitor(true);
+                _lidMonitor = new LidMonitor(true);//, ServiceName, _sc.ServiceHandle.DangerousGetHandle());
             }
             catch (Exception ex)
             {
-                EventLogger.LogEvent($"[Service] Failed to initialize WindowsBackgroundService: {ex.Message}", EventLogEntryType.Error);
+                EventLogger.LogEvent($"[Service] Failed to initialize WinBackgroundService: {ex.Message}", EventLogEntryType.Error);
                 Environment.Exit(1);
             }
         }
@@ -37,10 +57,12 @@ namespace WinSleepWellService
         public override void Dispose()
         {
             base.Dispose();
+            
             _lidMonitor.Dispose();
             _powerMonitor.Dispose();
             _settingsManager.Dispose();
             _deviceManager.Dispose();
+            //_sc.Dispose();
         }
 
         private string ExtractDeviceID(string deviceString)
@@ -131,17 +153,17 @@ namespace WinSleepWellService
                 ChangeDeviceStatus(true, false, false, " EVENT");
             }
         }
-        private static void OnLidStateChanged(object? sender, LidEventArgs e)
-        {
-            if (e.IsLidClosed)
-            {
-                EventLogger.LogEvent($"[Service] Lid is closed at {DateTimeOffset.Now}", EventLogEntryType.Information);
-            }
-            else
-            {
-                EventLogger.LogEvent($"[Service] Lid is open at {DateTimeOffset.Now}", EventLogEntryType.Information);
-            }
-        }
+        //private static void OnLidStateChanged(object? sender, LidEventArgs e)
+        //{
+        //    if (e.IsLidClosed)
+        //    {
+        //        EventLogger.LogEvent($"[Service] Lid is closed at {DateTimeOffset.Now}", EventLogEntryType.Information);
+        //    }
+        //    else
+        //    {
+        //        EventLogger.LogEvent($"[Service] Lid is open at {DateTimeOffset.Now}", EventLogEntryType.Information);
+        //    }
+        //}
 
         // Triggered when the application host is ready to start the service.
         public override async Task StartAsync(CancellationToken cancellationToken)
@@ -180,7 +202,7 @@ namespace WinSleepWellService
                 }
             }
 
-            _lidMonitor.LidStateChanged += OnLidStateChanged;
+            //_lidMonitor.LidStateChanged += OnLidStateChanged;
 
             _powerMonitor.Suspend += OnSuspend;
             _powerMonitor.Resume += OnResume;
@@ -206,6 +228,21 @@ namespace WinSleepWellService
         {
 #if DEBUG || TEST
             EventLogger.LogEvent($"[Service] WinSleepWell Service is executing at: {DateTimeOffset.Now}", EventLogEntryType.Information);
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var lidOpenStatus = _lidMonitor.IsLidOpen() ? "Open" : "Closed";
+                EventLogger.LogEvent($"[Service] Lid is {lidOpenStatus}. at: {DateTimeOffset.Now}", EventLogEntryType.Information);
+
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+                }
+                catch (TaskCanceledException)
+                {
+                    break;
+                }
+            }
 #endif
             // Wait indefinitely until the task is canceled.
             await Task.CompletedTask;

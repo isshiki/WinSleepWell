@@ -1,10 +1,19 @@
-﻿using System;
+﻿/*
+using Microsoft.Win32.TaskScheduler;
+using System;
 using System.Diagnostics;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
+*/
+using System;
+using System.Diagnostics;
+using System.Management;
+
 
 namespace WinSleepWell
 {
+    /*
     public class LidEventArgs : EventArgs
     {
         public bool IsLidClosed { get; }
@@ -14,9 +23,102 @@ namespace WinSleepWell
             IsLidClosed = isLidClosed;
         }
     }
+    */
 
     public class LidMonitor : IDisposable
     {
+        private bool _isService;
+        private string _programName;
+
+        public LidMonitor(bool isService)
+        {
+            _isService = isService;
+            _programName = _isService ? "Service" : "application";
+        }
+
+        public void Dispose()
+        {
+            // Do nothing
+        }
+
+        public enum VIDEO_OUTPUT_TECHNOLOGY : uint
+        {
+            UNINITIALIZED = 0xFFFFFFFE, // -2 in unsigned int
+            OTHER = 0xFFFFFFFF,        // -1 in unsigned int
+            HD15 = 0,
+            SVIDEO = 1,
+            COMPOSITE_VIDEO = 2,
+            COMPONENT_VIDEO = 3,
+            DVI = 4,
+            HDMI = 5,
+            LVDS = 6,
+            D_JPN = 8,
+            SDI = 9,
+            DISPLAYPORT_EXTERNAL = 10,
+            DISPLAYPORT_EMBEDDED = 11,
+            UDI_EXTERNAL = 12,
+            UDI_EMBEDDED = 13,
+            SDTVDONGLE = 14,
+            MIRACAST = 15,
+            INDIRECT_WIRED = 16,
+            INTERNAL = 0x80000000,
+            //SVIDEO_4PIN = SVIDEO,
+            //SVIDEO_7PIN = SVIDEO,
+            //RF = COMPOSITE_VIDEO,
+            //RCA_3COMPONENT = COMPOSITE_VIDEO,
+            //BNC = COMPOSITE_VIDEO
+        }   // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/d3dkmdt/ne-d3dkmdt-_d3dkmdt_video_output_technology
+
+        public bool IsLidOpen()
+        {
+            try
+            {
+                var foundActiveMonitor = false;
+
+                var searcher = new ManagementObjectSearcher(@"root\WMI", "SELECT * FROM WmiMonitorConnectionParams");
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    string instanceName = "";
+                    string videoOutputTech = "";
+                    bool isActive = true;
+
+                    foreach (var prop in obj.Properties)
+                    {
+                        switch (prop.Name)
+                        {
+                            case "InstanceName":
+                                instanceName = (string)prop.Value;
+                                break;
+                            case "VideoOutputTechnology":
+                                var tech = (VIDEO_OUTPUT_TECHNOLOGY)prop.Value;
+                                videoOutputTech = Enum.GetName(typeof(VIDEO_OUTPUT_TECHNOLOGY), tech) ?? "unknown";
+                                break;
+                            case "Active":
+                                isActive = (bool)prop.Value;
+                                foundActiveMonitor = true;
+                                break;
+                        }
+
+                    }
+
+                    Console.WriteLine($"Instance Name: {instanceName}");
+                    Console.WriteLine($"Video Output Technology: {videoOutputTech}");
+                    Console.WriteLine($"Is Active: {isActive}");
+
+                    if (foundActiveMonitor) break;
+                }
+
+                return foundActiveMonitor;  // An active display is considered the same as an open lid.
+            }
+            catch (Exception ex)
+            {
+                EventLogger.LogEvent($"[{_programName}] Failed to check lid status in IsLidOpen: {ex.Message}", EventLogEntryType.Error);
+            }
+            return true;
+        }
+
+
+        /*
         public event EventHandler<LidEventArgs>? LidStateChanged;
 
         private const int SERVICE_CONTROL_POWEREVENT = 0x0000000D;
@@ -24,7 +126,7 @@ namespace WinSleepWell
         private const int PBT_POWERSETTINGCHANGE = 0x8013;
         // https://learn.microsoft.com/en-us/windows/win32/power/pbt-powersettingchange
 
-        private static Guid GUID_LIDSWITCH_STATE_CHANGE = new Guid(0xBA3E0F4D, 0xB817, 0x4094, 0xA2, 0xD1, 0xD5, 0x63, 0x79, 0xE6, 0xA0, 0xF3);
+        private static Guid GUID_LIDSWITCH_STATE_CHANGE;// = new Guid(0xBA3E0F4D, 0xB817, 0x4094, 0xA2, 0xD1, 0xD5, 0x63, 0x79, 0xE6, 0xA0, 0xF3);
         // https://learn.microsoft.com/en-us/windows/win32/power/power-setting-guids#GUID_LIDSWITCH_STATE_CHANGE
         // GUID_LIDSWITCH_STATE_CHANGE(BA3E0F4D-B817-4094-A2D1-D56379E6A0F3)
         // The state of the lid has changed(open vs. closed). The callback won't be called until a lid device is found and its current state is known.
@@ -58,15 +160,15 @@ namespace WinSleepWell
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool UnregisterPowerSettingNotification(IntPtr hRecipient);
 
-        private IntPtr _recipientHandle;
         private IntPtr _registrationHandle;
+        private IntPtr _serviceStatusHandle;
 
         private bool _isService;
         private string _programName;
 
         public bool IsLidClosed { get; private set; }
 
-        public LidMonitor(bool isService, string serviceName= "WinSleepWellService")
+        public LidMonitor(bool isService, string serviceName, IntPtr recipientHandle)
         {
             IsLidClosed = false;
             _isService = isService;
@@ -74,12 +176,39 @@ namespace WinSleepWell
 
             _callback = NotificationCallback;
 
+            try
+            {
+                GUID_LIDSWITCH_STATE_CHANGE = new Guid(0xBA3E0F4D, 0xB817, 0x4094, 0xA2, 0xD1, 0xD5, 0x63, 0x79, 0xE6, 0xA0, 0xF3);                
+                var handleFlag = _isService ? DEVICE_NOTIFY_SERVICE_HANDLE : DEVICE_NOTIFY_WINDOW_HANDLE;
+                _registrationHandle = RegisterPowerSettingNotification(recipientHandle, ref GUID_LIDSWITCH_STATE_CHANGE, handleFlag);
+
+                if (_registrationHandle != IntPtr.Zero)
+                {
+#if DEBUG || TEST
+                    EventLogger.LogEvent("Registered Power Setting Notification", EventLogEntryType.Information);
+#endif
+                }
+                else
+                {
+                    var errCode = Marshal.GetLastWin32Error();
+                    Debug.Assert(errCode != 1083 || false, "ERROR_SERVICE_NOT_IN_EXE: The executable program that this service is configured to run in does not implement the service.");
+                    // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--1000-1299-
+                    throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode} (0x{errCode:X8})] Failed to call RegisterPowerSettingNotification.");
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLogger.LogEvent($"[{_programName}] Failed to initialize LidMonitor: {ex.Message}", EventLogEntryType.Error);
+                Dispose();
+                throw new Exception("Failed to initialize LidMonitor.", ex);
+            }
+
             if (_isService)
             {
                 try
                 {
-                    _recipientHandle = RegisterServiceCtrlHandlerEx(serviceName, _callback, IntPtr.Zero);  // Unregister is not required
-                    if (_recipientHandle != IntPtr.Zero)
+                    _serviceStatusHandle = RegisterServiceCtrlHandlerEx(serviceName, _callback, IntPtr.Zero);  // Unregister is not required
+                    if (_serviceStatusHandle != IntPtr.Zero)
                     {
 #if DEBUG || TEST
                         EventLogger.LogEvent("Registered Service Control Handler", EventLogEntryType.Information);
@@ -90,7 +219,7 @@ namespace WinSleepWell
                         var errCode = Marshal.GetLastWin32Error();
                         Debug.Assert(errCode != -1073741819 || false, "Access Violation: Run as a service.");
                         // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--1000-1299-
-                        throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode} (0x{errCode:X8})] Failed to register service control handler.");
+                        throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode} (0x{errCode:X8})] Failed to call RegisterServiceCtrlHandlerEx.");
                     }
                 }
                 catch (Exception ex)
@@ -107,32 +236,6 @@ namespace WinSleepWell
                 // Notifications will not be sent to `NotificationCallback`, but instead, they will be sent to the `WndProc` of that window.
                 Debug.Assert(false, "Not Implemented!!!");
                 throw new Exception("Failed to initialize LidMonitor - window handle.");
-            }
-
-            try
-            {
-                var handleFlag = _isService ? DEVICE_NOTIFY_SERVICE_HANDLE : DEVICE_NOTIFY_WINDOW_HANDLE;
-                _registrationHandle = RegisterPowerSettingNotification(_recipientHandle, ref GUID_LIDSWITCH_STATE_CHANGE, handleFlag);
-
-                if (_registrationHandle != IntPtr.Zero)
-                {
-#if DEBUG || TEST
-                    EventLogger.LogEvent("Registered Power Setting Notification", EventLogEntryType.Information);
-#endif
-                }
-                else
-                {
-                    var errCode = Marshal.GetLastWin32Error();
-                    Debug.Assert(errCode != 1083 || false, "ERROR_SERVICE_NOT_IN_EXE: The executable program that this service is configured to run in does not implement the service.");
-                    // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--1000-1299-
-                    throw new System.ComponentModel.Win32Exception(errCode, $" [{errCode} (0x{errCode:X8})] Failed to register lid switch state change notification.");
-                }
-            }
-            catch (Exception ex)
-            {
-                EventLogger.LogEvent($"[{_programName}] Failed to initialize LidMonitor: {ex.Message}", EventLogEntryType.Error);
-                Dispose();
-                throw new Exception("Failed to initialize LidMonitor.", ex);
             }
         }
 
@@ -171,5 +274,6 @@ namespace WinSleepWell
                 EventLogger.LogEvent($"[{_programName}] Failed to unregister LidMonitor : {ex.Message}", EventLogEntryType.Error);
             }
         }
+        */
     }
 }
