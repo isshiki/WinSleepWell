@@ -95,15 +95,16 @@ namespace WinSleepWell
                                 break;
                             case "Active":
                                 isActive = (bool)prop.Value;
-                                foundActiveMonitor = true;
+                                if (isActive)
+                                {
+                                    foundActiveMonitor = true;
+                                }                                
                                 break;
                         }
 
                     }
 
-                    Console.WriteLine($"Instance Name: {instanceName}");
-                    Console.WriteLine($"Video Output Technology: {videoOutputTech}");
-                    Console.WriteLine($"Is Active: {isActive}");
+                    EventLogger.LogEvent($"[Monitor] Instance Name: {instanceName}, Video Output Technology: {videoOutputTech}, Is Active: {isActive}", EventLogEntryType.Information);
 
                     if (foundActiveMonitor) break;
                 }

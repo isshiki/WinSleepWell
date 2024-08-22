@@ -142,7 +142,7 @@
         "runtime": {
           "WinSleepWellLib.dll": {
             "assemblyVersion": "1.0.0",
-            "fileVersion": "0.7.0.0"
+            "fileVersion": "0.7.1.0"
           }
         }
       }
