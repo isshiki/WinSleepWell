@@ -134,6 +134,9 @@ namespace WinSleepWellService
             {
                 ChangeDeviceStatus(false, false, false, " EVENT");
             }
+
+            var lidOpenStatus = _lidMonitor.IsLidOpen() ? "Open" : "Closed";
+            EventLogger.LogEvent($"[Service] Lid is {lidOpenStatus}. at: {DateTimeOffset.Now}", EventLogEntryType.Information);
         }
 
         private void OnResume(object? sender, PowerEventArgs e)
@@ -152,6 +155,9 @@ namespace WinSleepWellService
             {
                 ChangeDeviceStatus(true, false, false, " EVENT");
             }
+
+            var lidOpenStatus = _lidMonitor.IsLidOpen() ? "Open" : "Closed";
+            EventLogger.LogEvent($"[Service] Lid is {lidOpenStatus}. at: {DateTimeOffset.Now}", EventLogEntryType.Information);
         }
         //private static void OnLidStateChanged(object? sender, LidEventArgs e)
         //{
@@ -229,20 +235,20 @@ namespace WinSleepWellService
 #if DEBUG || TEST
             EventLogger.LogEvent($"[Service] WinSleepWell Service is executing at: {DateTimeOffset.Now}", EventLogEntryType.Information);
 
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                var lidOpenStatus = _lidMonitor.IsLidOpen() ? "Open" : "Closed";
-                EventLogger.LogEvent($"[Service] Lid is {lidOpenStatus}. at: {DateTimeOffset.Now}", EventLogEntryType.Information);
-
-                try
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
-                }
-                catch (TaskCanceledException)
-                {
-                    break;
-                }
-            }
+            //while (!stoppingToken.IsCancellationRequested)
+            //{
+            //    var lidOpenStatus = _lidMonitor.IsLidOpen() ? "Open" : "Closed";
+            //    EventLogger.LogEvent($"[Service] Lid is {lidOpenStatus}. at: {DateTimeOffset.Now}", EventLogEntryType.Information);
+            //
+            //    try
+            //    {
+            //        await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+            //    }
+            //    catch (TaskCanceledException)
+            //    {
+            //        break;
+            //    }
+            //}
 #endif
             // Wait indefinitely until the task is canceled.
             await Task.CompletedTask;
