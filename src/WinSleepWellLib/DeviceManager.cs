@@ -28,7 +28,7 @@ namespace WinSleepWell
             public string PnpClass { get; set; } = string.Empty;
         }
 
-        public List<DeviceInfo> GetDevices()
+        public List<DeviceInfo> GetDevicesForDesktopOnly()
         {
             var devices = new List<DeviceInfo>();
             try
@@ -62,6 +62,7 @@ namespace WinSleepWell
 
             return devices;
         }
+
 
         public string ChangeDeviceStatus(string deviceId, bool enable, bool canUseGUI, string message)
         {

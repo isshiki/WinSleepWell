@@ -37,7 +37,7 @@ namespace WinSleepWell
             {
                 _deviceManager = new DeviceManager(false);
                 _settingsManager = new SettingsManager(false);
-                _devices = _deviceManager.GetDevices();
+                _devices = _deviceManager.GetDevicesForDesktopOnly();
                 LoadDevicesInfo();
                 LoadSettings();
                 InitializeNotifyIcon();
@@ -364,7 +364,7 @@ namespace WinSleepWell
         private void ReloadDevicesInfo()
         {
             _isLoadingSettings = true;
-            _devices = _deviceManager.GetDevices();
+            _devices = _deviceManager.GetDevicesForDesktopOnly();
             LoadDevicesInfo();
             LoadSettings(); // Load settings after refreshing the device list
             _isLoadingSettings = false;

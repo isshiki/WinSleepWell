@@ -179,33 +179,17 @@ namespace WinSleepWellService
 #endif
             // Load settings and get all device information
             LoadSettings();
-            if (_mouseAutoToggle || _biometricAutoToggle)
-            {
-                _devices = _deviceManager.GetDevices();
-            }
 
             if (_mouseAutoToggle)
             {
-                // Find the device with the specified DeviceId (_selectedMouseDevice)
-                var mouseDevice = _devices.FirstOrDefault(device => device.DeviceId == _selectedMouseDeviceID);
-
-                if (mouseDevice != null && mouseDevice.Status != "OK")
-                {
-                    // The device is found and is not enabled, so we enable it
-                    ChangeDeviceStatus(true, true, false, " at Service startup");
-                }
+                // The device is found and is not enabled, so we enable it
+                ChangeDeviceStatus(true, true, false, " at Service startup");
             }
 
             if (_biometricAutoToggle)
             {
-                // Find the device with the specified DeviceId (_selectedBiometricDevice)
-                var biometricDevice = _devices.FirstOrDefault(device => device.DeviceId == _selectedBiometricDeviceID);
-
-                if (biometricDevice != null && biometricDevice.Status != "OK")
-                {
-                    // The device is found and is not enabled, so we enable it
-                    ChangeDeviceStatus(true, false, false, " at Service startup");
-                }
+                // The device is found and is not enabled, so we enable it
+                ChangeDeviceStatus(true, false, false, " at Service startup");
             }
 
             //_lidMonitor.LidStateChanged += OnLidStateChanged;
