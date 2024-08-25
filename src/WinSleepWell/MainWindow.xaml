@@ -31,6 +31,9 @@
         <CheckBox Name="BiometricAutoToggleCheckBox" Content="Disable on sleep, Enable on wake" HorizontalAlignment="Left" Margin="190,235,0,0" VerticalAlignment="Top" IsChecked="True" Checked="AutoToggleCheckBox_Checked" Unchecked="AutoToggleCheckBox_Unchecked"/>
         <Label Name="BiometricAutoToggleLabel" Content="Also Enable on Windows startup." HorizontalAlignment="Left" Margin="206,248,0,0" VerticalAlignment="Top" Visibility="{Binding ElementName=BiometricAutoToggleCheckBox, Path=IsChecked, Converter={StaticResource VisibilityConverter}}"/>
 
-        <Button Content="Close" Padding="5,2" MinHeight="30" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="80" Click="CloseWindow"/>
+        <Label Content="To apply changes immediately, you need to" Margin="10,308,0,0" HorizontalAlignment="Left" Width="300" Height="26" VerticalAlignment="Top"/>
+        <Button Name="RestartServiceButton" Content="Restart the WinSleepWell Service" Padding="5,2" MinHeight="30" Margin="250,306,0,0" Click="RestartServiceButton_Click" HorizontalAlignment="Left" Width="204" Height="30" VerticalAlignment="Top"/>
+
+        <Button Content="Close" Padding="5,2" MinHeight="30" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="100" Click="CloseWindow"/>
     </Grid>
 </Window>

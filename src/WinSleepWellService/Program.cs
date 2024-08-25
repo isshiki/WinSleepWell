@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using System.ServiceProcess;
 using WinSleepWell;
+using WinSleepWellLib;
 using WinSleepWellService;
 
 
@@ -13,7 +14,7 @@ if (PrivilegeManager.EnsureAdminPrivileges(true, "Service") == false)
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddWindowsService(options =>
 {
-    options.ServiceName = WinBackgroundService.ServiceName;
+    options.ServiceName = Identifiers.ServiceName;
 });
 
 // Configures logging to use Windows Event Log (currently disabled).
@@ -30,7 +31,7 @@ host.Run();  // Starts the host, running the application until it is stopped.
 /*
 ServiceBase[] ServicesToRun = new ServiceBase[]
 {
-    new WinServiceManager(serviceName: "WinSleepWellService")
+    new WinServiceManager(serviceName: Identifiers.ServiceName)
 };
 ServiceBase.Run(ServicesToRun);  // Starts the host, running the application until it is stopped.
 */

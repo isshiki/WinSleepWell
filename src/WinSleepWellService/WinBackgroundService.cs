@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.ServiceProcess;
 using System.Runtime.InteropServices;
 using WinSleepWell;
+using WinSleepWellLib;
 
 namespace WinSleepWellService
 {
@@ -18,7 +19,6 @@ namespace WinSleepWellService
         private bool _mouseAutoToggle = false;
         private bool _biometricAutoToggle = false;
 
-        public static string ServiceName { get; private set; } = "WinSleepWellService";
         //private WinServiceManager _winServiceManager = null!;
         //private IntPtr _serviceHandle = IntPtr.Zero;
         //private ServiceController _sc = null!;

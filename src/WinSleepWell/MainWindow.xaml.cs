@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Reflection;
+using System.ServiceProcess;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
+using WinSleepWellLib;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
@@ -474,6 +476,43 @@ namespace WinSleepWell
                 {
                     _selectedBiometricDevice = "None";
                 }
+            }
+        }
+
+        private void RestartServiceButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                using (var sc = new ServiceController(Identifiers.ServiceName))
+                {
+                    var currentStatus = sc.Status;
+
+                    if (currentStatus == ServiceControllerStatus.StartPending || currentStatus == ServiceControllerStatus.StopPending)
+                    {
+                        MessageBox.Show($"The service is currently in the '{currentStatus}' state. Please wait until the service is fully started or stopped before attempting a restart.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    if ((currentStatus == ServiceControllerStatus.Running || currentStatus == ServiceControllerStatus.Paused) && sc.CanStop)
+                    {
+                        sc.Stop();
+                        sc.WaitForStatus(ServiceControllerStatus.Stopped);
+                    }
+
+                    if (sc.Status == ServiceControllerStatus.Stopped)
+                    {
+                        sc.Start();
+                        sc.WaitForStatus(ServiceControllerStatus.Running);
+                    }
+
+#if DEBUG || TEST
+                    MessageBox.Show($"Status: {sc.Status}, Can Pause and Continue: {sc.CanPauseAndContinue}, Can Shutdown: {sc.CanShutdown}");
+#endif
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to restart the {Identifiers.ServiceName}. Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
